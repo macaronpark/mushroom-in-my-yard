@@ -163,9 +163,8 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 
 **타입:**
 
-- `feature/` - 새로운 기능 개발
+- `feat/` - 새로운 기능 개발
 - `bugfix/` - 버그 수정
-- `hotfix/` - 긴급 수정
 - `docs/` - 문서 작업
 - `refactor/` - 리팩토링
 
@@ -178,11 +177,10 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 **예시:**
 
 ```
-feature/mushroom-growth-timer
+feat/mushroom-growth-timer
 bugfix/field-click-event-handling
 docs/update-game-architecture
 refactor/event-bus-error-handling
-hotfix/ui-render-performance
 ```
 
 ### 브랜치 워크플로우
@@ -203,7 +201,7 @@ hotfix/ui-render-performance
 ```bash
 git checkout main
 git pull origin main
-git checkout -b feature/mushroom-collection-system
+git checkout -b feat/mushroom-collection-system
 ```
 
 ## 개발 가이드라인
