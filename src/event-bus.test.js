@@ -10,7 +10,7 @@ describe('on', () => {
     const eventName = 'testEvent';
     const callback = () => {};
 
-    EventBus.on(eventName, callback);
+    EventBus.on({ from: 'test', e: eventName, callback });
 
     expect(EventBus.events[eventName]).toBeDefined();
     expect(EventBus.events[eventName].length).toBe(1);
@@ -21,7 +21,7 @@ describe('on', () => {
     const eventName = 'testEvent';
     const callback = () => {};
 
-    EventBus.on(eventName, callback);
+    EventBus.on({ from: 'test', e: eventName, callback });
 
     expect(EventBus.events[eventName][0]).toBe(callback);
   });
@@ -31,8 +31,8 @@ describe('on', () => {
     const callback1 = () => {};
     const callback2 = () => {};
 
-    EventBus.on(eventName, callback1);
-    EventBus.on(eventName, callback2);
+    EventBus.on({ from: 'test', e: eventName, callback: callback1 });
+    EventBus.on({ from: 'test', e: eventName, callback: callback2 });
 
     expect(EventBus.events[eventName].length).toBe(2);
     expect(EventBus.events[eventName][0]).toBe(callback1);
@@ -45,8 +45,8 @@ describe('emit', () => {
     const eventName = 'testEvent';
     const mockCallback = vi.fn();
 
-    EventBus.on(eventName, mockCallback);
-    EventBus.emit(eventName);
+    EventBus.on({ from: 'test', e: eventName, callback: mockCallback });
+    EventBus.emit({ from: 'test', e: eventName });
 
     expect(mockCallback).toHaveBeenCalledTimes(1);
   });
@@ -56,8 +56,8 @@ describe('emit', () => {
     const testData = { message: 'test' };
     const mockCallback = vi.fn();
 
-    EventBus.on(eventName, mockCallback);
-    EventBus.emit(eventName, testData);
+    EventBus.on({ from: 'test', e: eventName, callback: mockCallback });
+    EventBus.emit({ from: 'test', e: eventName, data: testData });
 
     expect(mockCallback).toHaveBeenCalledWith(testData);
   });
@@ -67,11 +67,35 @@ describe('emit', () => {
     const mockCallback1 = vi.fn();
     const mockCallback2 = vi.fn();
 
-    EventBus.on(eventName, mockCallback1);
-    EventBus.on(eventName, mockCallback2);
-    EventBus.emit(eventName);
+    EventBus.on({ from: 'test', e: eventName, callback: mockCallback1 });
+    EventBus.on({ from: 'test', e: eventName, callback: mockCallback2 });
+    EventBus.emit({ from: 'test', e: eventName });
 
     expect(mockCallback1).toHaveBeenCalledTimes(1);
     expect(mockCallback2).toHaveBeenCalledTimes(1);
+  });
+
+  it('존재하지 않는 이벤트를 emit해도 오류가 발생하지 않는다', () => {
+    expect(() => {
+      EventBus.emit({ from: 'test', e: 'nonexistentEvent' });
+    }).not.toThrow();
+  });
+
+  it('콜백 함수에서 에러가 발생해도 다른 콜백 함수들은 정상 실행된다', () => {
+    const eventName = 'testEvent';
+    const errorCallback = vi.fn(() => {
+      throw new Error('Test error');
+    });
+    const normalCallback = vi.fn();
+
+    EventBus.on({ from: 'test', e: eventName, callback: errorCallback });
+    EventBus.on({ from: 'test', e: eventName, callback: normalCallback });
+
+    expect(() => {
+      EventBus.emit({ from: 'test', e: eventName });
+    }).not.toThrow();
+
+    expect(errorCallback).toHaveBeenCalledTimes(1);
+    expect(normalCallback).toHaveBeenCalledTimes(1);
   });
 });
