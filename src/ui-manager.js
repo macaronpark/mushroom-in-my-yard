@@ -79,6 +79,9 @@ export const UIManager = {
     field.classList.remove('field--empty');
     field.classList.add('field--planted');
 
+    const existingMushroom = field.querySelector('.mushroom');
+    if (existingMushroom) existingMushroom.remove();
+
     const mushroomElement = document.createElement('div');
     mushroomElement.innerText = mushroomType;
     mushroomElement.className = `mushroom`;
