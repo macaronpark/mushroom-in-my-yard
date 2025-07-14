@@ -84,7 +84,7 @@ export const UIManager = {
     if (existingMushroom) existingMushroom.remove();
 
     const mushroomElement = document.createElement('div');
-    mushroomElement.innerText = mushroomType;
+    mushroomElement.textContent = mushroomType;
     mushroomElement.className = `mushroom`;
 
     field.appendChild(mushroomElement);
