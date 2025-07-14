@@ -19,17 +19,18 @@ export const UIManager = {
   },
 
   bindEvents() {
-    // 밭
-    const field1 = document.getElementById('field-1');
-    const field2 = document.getElementById('field-2');
-    const field3 = document.getElementById('field-3');
+    const yard = document.getElementById('game-yard');
 
-    [field1, field2, field3].forEach((field) => {
-      field.addEventListener('click', (event) => {
-        this.handleFieldClick({
-          fieldID: event.currentTarget.id,
-          isEmpty: event.currentTarget.classList.contains('field--empty'),
-        });
+    yard.addEventListener('click', (event) => {
+      const target = event.target.closest('button');
+      if (!target) return;
+
+      const isFieldClicked = target.id.includes('field');
+      if (!isFieldClicked) return;
+
+      this.handleFieldClick({
+        fieldID: target.id,
+        isEmpty: target.classList.contains('field--empty'),
       });
     });
   },
