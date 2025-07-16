@@ -111,7 +111,7 @@ graph TD
   - ES6+ 필수
   - 네이밍: camelCase (plantMushroom, currentStage)
   - 함수형 패러다임: 순수 함수 선호, 불변성 유지
-  - JSDoc 주석: 모든 함수에 목적과 매개변수 설명
+  - JSDoc 주석: 모든 함수에 목적과 매개변수 설명. 문장은 간결하게 개조식으로 작성한다.
 - CSS
   - 별도의 프레임워크 없이 순수 CSS 사용
   - [Google HTML/CSS Style Guide](https://google.github.io/styleguide/htmlcssguide.html)를 따름
