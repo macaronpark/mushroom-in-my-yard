@@ -16,13 +16,30 @@ export const CONFIG = {
 
   /**
    * 버섯의 성장 단계를 나타내는 문자열 상수
-   * @property {string} SPORE - 포자 단계
-   * @property {string} SPROUT - 발아 단계
-   * @property {string} MATURE - 성장 완료 단계
+   * @property {string} MYCELIUM - 균사 단계: 포자가 발아하여 배지에 균사 네트워크를 형성하는 영양 성장 단계
+   * @property {string} FRUITING - 자실체 형성 및 성장 단계: 균사체가 뭉쳐 버섯의 원기를 형성하고 버섯 형태로 자라나는 단계
+   * @property {string} MATURE - 성숙 단계: 버섯이 완전히 성장하여 포자를 방출할 준비가 된 단계
    */
-  GROWTH_STAGES: {
-    SPORE: 'spore',
-    SPROUT: 'sprout',
+  GROWTH_STAGE: {
+    /**
+     * 균사 단계:
+     * 포자가 발아하여 배지에 균사 네트워크를 형성하는 영양 성장 단계.
+     * 아직 버섯 형태는 보이지 않음.
+     */
+    MYCELIUM: 'mycelium',
+
+    /**
+     * 자실체 형성 및 성장 단계:
+     * 균사체가 뭉쳐 버섯의 원기(Primordia/Pins)를 형성하고,
+     * 우리가 아는 버섯의 형태로 자라나는 단계.
+     */
+    FRUITING: 'fruiting',
+
+    /**
+     * 성숙 단계:
+     * 버섯이 완전히 성장하여 포자를 방출할 준비가 된 단계.
+     * 수확에 적기인 경우가 많음.
+     */
     MATURE: 'mature',
   },
 
@@ -35,8 +52,8 @@ export const CONFIG = {
      * @property {string} description - 버섯에 대한 설명
      * @property {number} rarity - 버섯의 희귀도 (0.0 ~ 1.0). 0에 가까울수록 흔하고 1에 가까울수록 희귀함.
      * @property {object} growthTime - 버섯의 단계별 성장 시간 (ms)
-     * @property {number} growthTime.sporeToSprout - 포자에서 발아 단계까지 걸리는 시간
-     * @property {number} growthTime.sproutToMature - 발아에서 성장 완료 단계까지 걸리는 시간
+     * @property {number} growthTime.myceliumToFruiting - 균사에서 자실체 형성 단계까지 걸리는 시간
+     * @property {number} growthTime.fruitingToMature - 자실체에서 성숙 단계까지 걸리는 시간
      */
     RED_CAP: {
       id: 'red-cap',
@@ -51,8 +68,8 @@ export const CONFIG = {
       ```,
       rarity: 0,
       growthTime: {
-        sporeToSprout: 6000,
-        sproutToMature: 12000,
+        myceliumToFruiting: 6000,
+        fruitingToMature: 12000,
       },
     },
     JACK_O_LANTERN: {
@@ -68,8 +85,8 @@ export const CONFIG = {
       ```,
       rarity: 0,
       growthTime: {
-        sporeToSprout: 6000,
-        sproutToMature: 12000,
+        myceliumToFruiting: 6000,
+        fruitingToMature: 12000,
       },
     },
   },

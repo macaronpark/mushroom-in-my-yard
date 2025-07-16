@@ -32,7 +32,7 @@
 ## 게임 핵심 메커니즘
 
 - 플레이 루프: 버섯 심기 → 성장 대기 → 수확 → 도감 등록 → 반복
-- 성장 단계: 포자(spore) → 새싹(sprout) → 완성(mature)
+- 성장 단계: 균사(mycelium) → 자실체(fruiting) → 성숙(mature)
 - 주요 화면: 타이틀, 인게임(마당), 도감
 
 ## 아키텍처
@@ -170,7 +170,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 feat: 버섯 성장 타이머 시스템 구현
 
 - TimerManager 모듈 추가로 성장 단계별 타이머 관리
-- 포자 → 새싹 → 완성 단계별 성장 시간 설정
+- 균사 → 자실체 → 성숙 단계별 성장 시간 설정
 - LocalStorage에 타이머 상태 저장하여 페이지 새로고침 시에도 유지
 
 🤖 Generated with [Claude Code](https://claude.ai/code)
@@ -275,7 +275,7 @@ git checkout -b feat/mushroom-collection-system
   - [ ] 초기화
 - 인게임 - 마당
   - [x] 밭에 버섯 심기
-  - [ ] 시간 흐름에 따른 버섯의 3단계 성장
+  - [ ] 시간 흐름에 따른 버섯의 3단계 성장 (균사 → 자실체 → 성숙)
   - [ ] 버섯 수확하기
 - 인게임 - 도감
   - [ ] 버섯 수확 시 도감 신규 추가 알림
