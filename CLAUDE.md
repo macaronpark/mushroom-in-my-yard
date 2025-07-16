@@ -129,8 +129,6 @@ graph TD
 <type>: <subject>
 
 <body>
-
-<footer>
 ```
 
 **타입 (Type):**
@@ -149,6 +147,7 @@ graph TD
 - 첫 글자는 소문자
 - 마침표 사용하지 않음
 - 명령형으로 작성 ("추가했다" ❌ → "추가" ⭕)
+- AI가 작성한 경우: 제목 마지막에 [AI]를 명시
 
 **본문 (Body):**
 
@@ -156,25 +155,14 @@ graph TD
 - 72자마다 줄바꿈
 - bullet point 사용 권장
 
-**푸터 (Footer):**
-
-```
-🤖 Generated with [Claude Code](https://claude.ai/code)
-
-Co-Authored-By: Claude <noreply@anthropic.com>
-```
-
 **예시:**
 
 ```
-feat: 버섯 성장 타이머 시스템 구현
+feat: 버섯 성장 타이머 시스템 구현 [AI]
 
-- TimerManager 모듈 추가로 성장 단계별 타이머 관리
+- 버섯 클래스 내부에서 타이머 관리
 - 균사 → 자실체 → 성숙 단계별 성장 시간 설정
 - LocalStorage에 타이머 상태 저장하여 페이지 새로고침 시에도 유지
-
-🤖 Generated with [Claude Code](https://claude.ai/code)
-Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
 ### 브랜치 네이밍
