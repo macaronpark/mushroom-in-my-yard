@@ -18,11 +18,11 @@ export const EventBus = {
 
   emit({ from, e, data }) {
     try {
-      this.events[e].forEach((cb) => {
+      this.events[e].forEach((cb, idx) => {
         try {
           Logger.log({
             from,
-            msg: `🔥 EventBus.emit: ${e}`,
+            msg: `🔥 EventBus.emit: ${e}[${idx}]`,
             data,
           });
 

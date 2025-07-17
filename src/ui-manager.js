@@ -6,15 +6,12 @@ export const UIManager = {
   init() {
     this.bindEvents();
 
-    Logger.log({
-      from: FROM,
-      msg: '🐣 init',
-    });
+    Logger.log({ from: FROM, msg: '🐣 init' });
 
     EventBus.on({
       from: FROM,
-      e: CONFIG.EVENT_ID.FIELD.UPDATED,
-      callback: (data) => this.renderField(data),
+      e: CONFIG.EVENT_ID.RENDER_MUSHROOM,
+      callback: ({ mushroom }) => this.renderMushroom({ mushroom }),
     });
   },
 
@@ -36,64 +33,74 @@ export const UIManager = {
   },
 
   handleFieldClick({ fieldID, isEmpty }) {
-    const data = {
-      fieldID,
-      isEmpty,
-    };
-
     EventBus.emit({
       from: FROM,
-      e: CONFIG.EVENT_ID.FIELD.CLICKED,
-      data,
+      e: CONFIG.EVENT_ID.FIELD_CLICKED,
+      data: { fieldID, isEmpty },
     });
   },
 
-  renderField(data) {
-    const { fieldID, mushroomType, plantedTime } = data;
+  renderMushroom({ mushroom }) {
+    const isExist = document.getElementById(mushroom.id);
+
+    if (!isExist) {
+      this.plantMushroom({ mushroom });
+    }
+
+    this.updateMushroom({ mushroom });
+  },
+
+  plantMushroom({ mushroom }) {
+    const { fieldID, id } = mushroom;
     const targetField = document.getElementById(fieldID);
 
     if (!targetField) {
       Logger.error({
         from: FROM,
-        msg: `❌ renderField: field not found for ${fieldID}`,
-        data,
+        msg: `❌ plantMushroom: ${fieldID} not found`,
       });
       return;
     }
 
-    if (mushroomType) {
-      this.plantMushroom({
-        field: targetField,
-        mushroomType,
-        plantedTime,
-      });
-    }
-
-    Logger.log({
-      from: FROM,
-      msg: `✅ renderField`,
-      data,
-    });
-  },
-
-  plantMushroom({ field, mushroomType, plantedTime }) {
-    field.classList.remove('field--empty');
-    field.classList.add('field--planted');
-
-    const existingMushroom = field.querySelector('.mushroom');
-    if (existingMushroom) existingMushroom.remove();
+    targetField.classList.remove('field--empty');
+    targetField.classList.add('field--planted');
+    targetField.innerHTML = '';
 
     const mushroomElement = document.createElement('div');
-    mushroomElement.textContent = mushroomType;
+    mushroomElement.id = id;
     mushroomElement.className = `mushroom`;
 
-    field.appendChild(mushroomElement);
+    targetField.appendChild(mushroomElement);
 
-    Logger.log({
-      from: FROM,
-      msg: `🌱 Planted`,
-      data: { fieldID: field.id, mushroomType, plantedTime },
-    });
+    Logger.log({ from: FROM, msg: `🌱 plantMushroom: ${id}` });
+  },
+
+  updateMushroom({ mushroom }) {
+    const mushroomEl = document.getElementById(mushroom.id);
+
+    if (!mushroomEl) {
+      Logger.error({
+        from: FROM,
+        msg: `❌ updateMushroomGrowthStage: ${mushroom.id} not found`,
+      });
+      return;
+    }
+
+    mushroomEl.style.backgroundColor =
+      mushroom.growthStage === CONFIG.GROWTH_STAGE.MYCELIUM
+        ? 'lightGray'
+        : mushroom.growthStage === CONFIG.GROWTH_STAGE.FRUITING
+          ? 'yellow'
+          : 'red';
+
+    mushroomEl.textContent =
+      mushroom.name +
+      '버섯_' +
+      (mushroom.growthStage === CONFIG.GROWTH_STAGE.MYCELIUM
+        ? 'MYCELIUM'
+        : mushroom.growthStage === CONFIG.GROWTH_STAGE.FRUITING
+          ? 'FRUITING'
+          : 'MATURE');
   },
 };
 
