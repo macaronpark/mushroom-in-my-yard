@@ -47,6 +47,7 @@ export const CONFIG = {
   MUSHROOM: {
     /**
      * @property {string} id - 버섯의 고유 식별자
+     * @property {string} type - 버섯의 고유 타입. UPPER_CASE로 작성한다.
      * @property {string} name - 버섯의 일반 이름
      * @property {string} scientificName - 버섯의 학명
      * @property {string} description - 버섯에 대한 설명
@@ -57,15 +58,16 @@ export const CONFIG = {
      */
     RED_CAP: {
       id: 'red-cap',
+      type: 'RED_CAP',
       name: '광대',
       scientificName: 'Amanita muscaria',
-      description: ```
+      description: `
         광대버섯은 주름버섯목 광대버섯과의 독버섯으로, 북반구 전역의 침엽수림에서 자란다.
         갓은 선명한 붉은색이며 흰색 사마귀가 흩어져 있고, 처음에는 둥글지만 자라면서 평평해진다.
         흰색의 턱받이와 볼록한 구근형 밑동이 특징이다. 독성 성분으로는 무스카린, 이보텐산, 무시몰 등이 있으며,
         섭취 시 구토, 환각, 착란 등의 증상을 유발한다. 고대 인도경전 리그베다에 나오는 환각제 ‘소마’의 후보로
         지목되기도 하며, 인류 문화와 신화 속에서도 자주 등장한다.
-      ```,
+      `,
       rarity: 0,
       growthTime: {
         myceliumToFruiting: 6000,
@@ -74,15 +76,16 @@ export const CONFIG = {
     },
     JACK_O_LANTERN: {
       id: 'jack-o-lantern',
+      type: 'JACK_O_LANTERN',
       name: '잭오랜턴',
       scientificName: 'Omphalotus olearius',
-      description: ```
+      description: `
         잭오랜턴버섯은 주름버섯목 낙엽버섯과의 독버섯으로, 지중해 지역과 유럽 남부 등지에서
         활엽수 뿌리 근처에 군생한다. 할로윈이 있는 10월에 흔하게 관찰된다. 
         갓과 주름은 선명한 주황색~주홍색을 띠며, 밤에는 주름에서 희미한 녹색빛을 내는 생물발광 현상이 나타난다.
         갓은 5~15cm로 편평하게 퍼지고, 줄기는 중심에서 벗어나 자란다. 
         능이버섯과 혼동될 수 있으나 독성 성분인 일루딘S로 인해 섭취 시 심한 복통, 구토, 설사를 유발한다. 
-      ```,
+      `,
       rarity: 0,
       growthTime: {
         myceliumToFruiting: 6000,
@@ -93,11 +96,122 @@ export const CONFIG = {
 
   // 이벤트 식별자
   EVENT_ID: {
-    FIELD: {
-      CLICKED: 'fieldClicked',
-      SET: 'setFieldState',
-      UPDATED: 'fieldStateUpdated',
-    },
+    /**
+     * 밭 클릭 이벤트
+     *
+     * @event {string} FIELD_CLICKED
+     * @description 사용자가 게임 화면의 밭을 클릭했을 때 발생
+     * @emitter {string} UIManager - 밭 DOM 요소 클릭 시 (handleFieldClick 메서드)
+     * @listener {string} GameLogic - 밭 상태 검증 후 버섯 심기 로직 실행
+     * @data {Object} 클릭된 밭 정보
+     * @data.fieldID {string} 클릭된 밭의 고유 ID (예: 'field-1', 'field-2')
+     * @data.isEmpty {boolean} 밭이 비어있는지 여부 (true: 비어있음, false: 버섯 있음)
+     *
+     * @example
+     * // UIManager에서 발생
+     * EventBus.emit({
+     *   from: CONFIG.MODULE_ID.UI_MANAGER,
+     *   e: CONFIG.EVENT_ID.FIELD_CLICKED,
+     *   data: { fieldID: 'field-1', isEmpty: true }
+     * });
+     *
+     * // GameLogic에서 수신
+     * EventBus.on({
+     *   from: CONFIG.MODULE_ID.GAME_LOGIC,
+     *   e: CONFIG.EVENT_ID.FIELD_CLICKED,
+     *   callback: ({ fieldID, isEmpty }) => {
+     *     if (!isEmpty) return;
+     *     this.plant({ fieldID });
+     *   }
+     * });
+     */
+    FIELD_CLICKED: 'fieldClicked',
+    /**
+     * 새로운 버섯 심기 이벤트
+     *
+     * @event {string} SET_NEW_MUSHROOM
+     * @description 밭이 비어있을 때 새로운 버섯을 심기 위해 발생
+     * @emitter {string} GameLogic - 밭 클릭 검증 후 버섯 심기 로직 실행 시 (plant 메서드)
+     * @listener {string} GameState - 새로운 버섯 인스턴스를 밭에 저장
+     * @data {Object} 심을 버섯 정보
+     * @data.mushroom {Mushroom} 새로 생성된 버섯 인스턴스
+     *
+     * @example
+     * // GameLogic에서 발생
+     * EventBus.emit({
+     *   from: CONFIG.MODULE_ID.GAME_LOGIC,
+     *   e: CONFIG.EVENT_ID.SET_NEW_MUSHROOM,
+     *   data: { mushroom: new Mushroom({ fieldID }) }
+     * });
+     *
+     * // GameState에서 수신
+     * EventBus.on({
+     *   from: CONFIG.MODULE_ID.GAME_STATE,
+     *   e: CONFIG.EVENT_ID.SET_NEW_MUSHROOM,
+     *   callback: ({ mushroom }) => {
+     *     this.setField(mushroom.fieldID, mushroom);
+     *   }
+     * });
+     */
+    SET_NEW_MUSHROOM: 'setNewMushroom',
+    /**
+     * 버섯 성장 단계 변경 이벤트
+     *
+     * @event {string} UPDATE_MUSHROOM_GROWTH_STAGE
+     * @description 버섯이 다음 성장 단계로 자동 성장했을 때 발생
+     * @emitter {string} Mushroom - 성장 타이머 완료 시 (#growTo 메서드)
+     * @listener {string} GameState - 버섯 성장 상태 업데이트
+     * @data {Object} 성장 정보
+     * @data.mushroomID {string} 성장한 버섯 ID
+     * @data.nextGrowthStage {string} 변경된 성장 단계 (MYCELIUM|FRUITING|MATURE)
+     *
+     * @example
+     * // Mushroom 클래스에서 발생
+     * EventBus.emit({
+     *   from: CONFIG.MODULE_ID.mushroom({ id: this.id }),
+     *   e: CONFIG.EVENT_ID.UPDATE_MUSHROOM_GROWTH_STAGE,
+     *   data: { mushroomID: this.id, nextGrowthStage: 'FRUITING' }
+     * });
+     *
+     * // GameState에서 수신
+     * EventBus.on({
+     *   from: CONFIG.MODULE_ID.GAME_STATE,
+     *   e: CONFIG.EVENT_ID.UPDATE_MUSHROOM_GROWTH_STAGE,
+     *   callback: ({ mushroomID, nextGrowthStage }) => {
+     *     // 버섯 상태 업데이트 로직
+     *   }
+     * });
+     */
+    UPDATE_MUSHROOM_GROWTH_STAGE: 'updateMushroomGrowthStage',
+    RENDER_MUSHROOM: 'renderMushroom',
+    /**
+     * 버섯 수확 이벤트
+     *
+     * @event {string} HARVEST_MUSHROOM
+     * @description 성숙한 버섯을 클릭하여 수확할 때 발생
+     * @emitter {string} UIManager - 성숙한 버섯 클릭 시 (handleMushroomClick 메서드)
+     * @listener {string} GameLogic - 수확 조건 검증 후 수확 로직 실행
+     * @data {Object} 수확할 버섯 정보
+     * @data.mushroomID {string} 수확할 버섯의 고유 ID
+     *
+     * @example
+     * // UIManager에서 발생
+     * EventBus.emit({
+     *   from: CONFIG.MODULE_ID.UI_MANAGER,
+     *   e: CONFIG.EVENT_ID.HARVEST_MUSHROOM,
+     *   data: { mushroomID: 'field-1_red-cap' }
+     * });
+     *
+     * // GameLogic에서 수신
+     * EventBus.on({
+     *   from: CONFIG.MODULE_ID.GAME_LOGIC,
+     *   e: CONFIG.EVENT_ID.HARVEST_MUSHROOM,
+     *   callback: ({ mushroomID }) => {
+     *     this.harvest({ mushroomID });
+     *   }
+     * });
+     */
+    HARVEST_MUSHROOM: 'harvestMushroom',
   },
 
   /**
@@ -111,5 +225,6 @@ export const CONFIG = {
     GAME_LOGIC: '[GameLogic]',
     GAME_STATE: '[GameState]',
     UI_MANAGER: '[UIManager]',
+    mushroom: ({ id }) => `[Mushroom: ${id}]`,
   },
 };

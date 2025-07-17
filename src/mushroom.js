@@ -1,32 +1,70 @@
 import { CONFIG } from './config';
+import { EventBus } from './event-bus';
 
-class Mushroom {
-  constructor({ type, fieldId, plantedTime }) {
-    const { id, name, rarity, growthTime } = CONFIG.MUSHROOM[type];
+export class Mushroom {
+  #growthTimerID;
 
-    this.id = id;
+  constructor({ fieldID }) {
+    const { id, type, name, rarity, growthTime } = CONFIG.MUSHROOM.RED_CAP;
+
+    this.fieldID = fieldID;
+    this.plantedTime = Date.now();
+    this.id = fieldID + '_' + id;
+    this.type = type;
     this.name = name;
     this.rarity = rarity;
     this.growthStage = CONFIG.GROWTH_STAGE.MYCELIUM;
-    this.myceliumToFruiting = growthTime.myceliumToFruiting;
-    this.fruitingToMature = growthTime.fruitingToMature;
-    this.fieldId = fieldId;
-    this.plantedTime = plantedTime;
+    this.growthTime = growthTime;
+    this.#growthTimerID = null;
+
+    this.#scheduleNextGrowth();
   }
 
-  startGrowthTimer({ stage }) {
-    // 타이머 시작
+  #scheduleNextGrowth() {
+    const currentStage = this.growthStage;
+    const { myceliumToFruiting, fruitingToMature } = this.growthTime;
 
-    if (stage === CONFIG.GROWTH_STAGE.MYCELIUM) {
-      // 균사 -> 자실체 형성
+    this.#clearTimer();
+
+    switch (currentStage) {
+      case CONFIG.GROWTH_STAGE.MYCELIUM: {
+        this.#growthTimerID = setTimeout(() => {
+          this.#growTo({ nextStage: CONFIG.GROWTH_STAGE.FRUITING });
+          this.#scheduleNextGrowth();
+        }, myceliumToFruiting);
+        break;
+      }
+
+      case CONFIG.GROWTH_STAGE.FRUITING: {
+        this.#growthTimerID = setTimeout(() => {
+          this.#growTo({ nextStage: CONFIG.GROWTH_STAGE.MATURE });
+          this.#scheduleNextGrowth();
+        }, fruitingToMature);
+        break;
+      }
+
+      case CONFIG.GROWTH_STAGE.MATURE: {
+        break;
+      }
     }
   }
 
-  growToNextStage() {
-    // 다음 단계로 성장
+  #growTo({ nextStage }) {
+    EventBus.emit({
+      from: CONFIG.MODULE_ID.mushroom({ id: this.id }),
+      e: CONFIG.EVENT_ID.UPDATE_MUSHROOM_GROWTH_STAGE,
+      data: { mushroomID: this.id, nextGrowthStage: nextStage },
+    });
   }
 
-  destructor() {
-    // 타이머 정리
+  #clearTimer() {
+    if (!this.#growthTimerID) return;
+
+    clearTimeout(this.#growthTimerID);
+    this.#growthTimerID = null;
+  }
+
+  destroy() {
+    this.#clearTimer();
   }
 }
