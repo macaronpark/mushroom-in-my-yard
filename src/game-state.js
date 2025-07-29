@@ -3,72 +3,75 @@ import { EventBus } from './event-bus';
 import { Logger } from './logger';
 
 export const GameState = {
-  field: {
-    list: [
-      {
-        id: 'field-1',
-        mushroomType: null,
-        plantedTime: null,
-      },
-      {
-        id: 'field-2',
-        mushroomType: null,
-        plantedTime: null,
-      },
-      {
-        id: 'field-3',
-        mushroomType: null,
-        plantedTime: null,
-      },
-    ],
-
-    get(data) {
-      return this.list.find((f) => f.id === data.fieldID);
+  fieldList: [
+    {
+      id: 'field-1',
+      mushroom: null,
     },
-
-    set(data) {
-      const { fieldID, mushroomType, plantedTime } = data;
-      const field = this.get(data);
-
-      if (!field) {
-        Logger.error({
-          from: FROM,
-          msg: `❌ set: field not found for ${fieldID}`,
-          data,
-        });
-
-        return;
-      }
-
-      field.mushroomType = mushroomType;
-      field.plantedTime = plantedTime;
-
-      Logger.log({
-        from: FROM,
-        msg: `✅ field.set`,
-        data,
-      });
+    {
+      id: 'field-2',
+      mushroom: null,
     },
-  },
+    {
+      id: 'field-3',
+      mushroom: null,
+    },
+  ],
 
   init() {
-    Logger.log({
+    Logger.log({ from: FROM, msg: '🐣 init' });
+
+    EventBus.on({
       from: FROM,
-      msg: '🐣 init',
+      e: CONFIG.EVENT_ID.SET_NEW_MUSHROOM,
+      callback: ({ mushroom }) => {
+        this.setNewMushroom({ mushroom });
+      },
     });
 
     EventBus.on({
       from: FROM,
-      e: CONFIG.EVENT_ID.FIELD.SET,
-      callback: (data) => {
-        this.field.set(data);
+      e: CONFIG.EVENT_ID.UPDATE_MUSHROOM_GROWTH_STAGE,
+      callback: ({ fieldID, nextGrowthStage }) =>
+        this.updateMushroomGrowthStage({
+          fieldID,
+          nextGrowthStage,
+        }),
+    });
+  },
 
-        EventBus.emit({
-          from: FROM,
-          e: CONFIG.EVENT_ID.FIELD.UPDATED,
-          data,
-        });
-      },
+  getField({ fieldID }) {
+    const field = this.fieldList.find((f) => f.id === fieldID);
+
+    if (!field) {
+      Logger.error({ from: FROM, msg: `❌ getField: ${fieldID} not found` });
+      return;
+    }
+
+    return field;
+  },
+
+  setNewMushroom({ mushroom }) {
+    const field = this.getField({ fieldID: mushroom.fieldID });
+    field.mushroom = mushroom;
+
+    EventBus.emit({
+      from: FROM,
+      e: CONFIG.EVENT_ID.RENDER_MUSHROOM,
+      data: { mushroom },
+    });
+  },
+
+  updateMushroomGrowthStage({ fieldID, nextGrowthStage }) {
+    const field = this.getField({ fieldID });
+    if (!field) return;
+
+    field.mushroom.growthStage = nextGrowthStage;
+
+    EventBus.emit({
+      from: FROM,
+      e: CONFIG.EVENT_ID.RENDER_MUSHROOM,
+      data: { mushroom: field.mushroom },
     });
   },
 };

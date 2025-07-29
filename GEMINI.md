@@ -1,19 +1,42 @@
-## 프로젝트 개요
+- [프로젝트 개요](#프로젝트-개요)
+- [아키텍처](#아키텍처)
+  - [전체 시스템 구조](#전체-시스템-구조)
+    - [핵심 설계 원칙](#핵심-설계-원칙)
+    - [모듈별 역할](#모듈별-역할)
+    - [이벤트](#이벤트)
+    - [파일 구조](#파일-구조)
+- [컨벤션](#컨벤션)
+  - [코딩 컨벤션](#코딩-컨벤션)
+  - [앵커 주석 (Anchor comments)](#앵커-주석-anchor-comments)
+  - [Git 컨벤션](#git-컨벤션)
+    - [커밋 메시지](#커밋-메시지)
+    - [브랜치 네이밍](#브랜치-네이밍)
+    - [브랜치 워크플로우](#브랜치-워크플로우)
+- [개발 가이드라인](#개발-가이드라인)
+    - [새로운 기능 추가 시](#새로운-기능-추가-시)
+    - [디버깅 시 확인사항](#디버깅-시-확인사항)
+    - [성능 최적화](#성능-최적화)
+    - [테스트 고려사항](#테스트-고려사항)
+    - [⚠️ 중요 참고사항](#️-중요-참고사항)
+- [개발 현황판](#개발-현황판)
+- [AI Persona](#ai-persona)
+- [dev-log 작성 가이드](#dev-log-작성-가이드)
 
-- 목표: HTML, CSS, JavaScript 학습과 낭만을 위한 간단한 수집형 미니 게임 개발
+# 프로젝트 개요
+
+- 목표: 이벤트 기반 아키텍처, HTML·CSS·JavaScript 학습, 그리고 낭만을 위한 간단한 수집형 미니 게임 개발
 - 기술 스택: HTML5, CSS3, Vanilla JavaScript, LocalStorage
-- 해상도: 1280\*720
-- 플레이타임: ~10분
+- 게임 개요
+  - 해상도: 1280\*720
+  - 플레이타임: ~10분
+  - 핵심 메커니즘
+    - 플레이 루프: 버섯 심기 → 성장 대기 → 수확 → 도감 등록 → 반복
+    - 성장 단계: 균사(mycelium) → 자실체(fruiting) → 성숙(mature)
+    - 주요 화면: 타이틀, 인게임(마당), 도감
 
-## 게임 핵심 메커니즘
+# 아키텍처
 
-- 플레이 루프: 버섯 심기 → 성장 대기 → 수확 → 도감 등록 → 반복
-- 성장 단계: 포자(spore) → 새싹(sprout) → 완성(mature)
-- 주요 화면: 타이틀, 인게임(마당), 도감
-
-## 아키텍처
-
-### 전체 시스템 구조
+## 전체 시스템 구조
 
 ```mermaid
 graph TD
@@ -22,14 +45,13 @@ graph TD
     GameState["GameState<br/><sub>게임 상태/데이터 관리</sub>"]
     GameLogic["GameLogic<br/><sub>게임 비즈니스 로직</sub>"]
     UIManager["UIManager<br/><sub>화면 렌더링 관리</sub>"]
-    TimerManager["TimerManager<br/><sub>성장 타이머 관리</sub>"]
     StorageManager["StorageManager<br/><sub>데이터 저장/로드</sub>"]
 
-    EventBus --> GameState
-    EventBus --> GameLogic
-    EventBus --> UIManager
-    EventBus --> TimerManager
-    EventBus --> StorageManager
+     GameState --> EventBus
+     GameLogic --> EventBus
+     UIManager --> EventBus
+     StorageManager --> EventBus
+
 ```
 
 ### 핵심 설계 원칙
@@ -41,30 +63,17 @@ graph TD
 
 ### 모듈별 역할
 
-- main.js: 애플리케이션 초기화 및 전체 조율
+- **main.js**: 애플리케이션 초기화 및 전체 조율
+- **EventBus**: 중앙 이벤트 관리. 모든 이벤트는 EventBus를 통해 처리
+- **GameState**: 순수한 데이터 계층. 검증 로직 없이 요청받은 데이터만 변경
+- **GameLogic**: 비즈니스 로직 계층. 조건 검증 후 GameState 업데이트 이벤트 호출
+- **UIManager**: GameState 기반 렌더링 관리
 
-- UIManager: UI 상호작용 및 이벤트 처리
+### 이벤트
 
-- GameState: 순수한 데이터 계층
-  - 역할: 게임 데이터의 저장과 조회만 담당
-  - 구현: 단순한 CRUD 메서드 (get, set, isEmpty 등)
-  - 특징: 검증 로직 없이 요청받은 데이터만 변경
-  - 예시: setField(fieldID, data) - 밭 데이터 직접 변경
+이벤트 목록과 설명은 [src/config.js](/src/config.js) `EVENT_ID` 참고
 
-- GameLogic: 비즈니스 로직 계층
-  - 역할: 게임 규칙과 로직 처리
-  - 구현: 복잡한 게임 메커니즘 (plantMushroom, harvestMushroom 등)
-  - 특징: 조건 검증 후 GameState 호출, 이벤트 처리
-  - 예시: plantMushroom(fieldID, mushroomType) - 심기 조건 확인 후
-    EventBus.emit('updateFieldState', ...) 호출
-
-## 이벤트 흐름
-
-// todo: 정리
-
-### 이벤트 데이터 구조
-
-## 파일 구조
+### 파일 구조
 
 // todo: 설명 추가
 
@@ -81,19 +90,47 @@ graph TD
   - 📄 index.html
 ```
 
+# 컨벤션
+
 ## 코딩 컨벤션
 
 - JavaScript
   - ES6+ 필수
   - 네이밍: camelCase (plantMushroom, currentStage)
   - 함수형 패러다임: 순수 함수 선호, 불변성 유지
-  - JSDoc 주석: 모든 함수에 목적과 매개변수 설명
+  - JSDoc 주석: 모든 함수에 목적과 매개변수 설명. 문장은 간결하게 개조식으로 작성한다.
 - CSS
   - 별도의 프레임워크 없이 순수 CSS 사용
   - [Google HTML/CSS Style Guide](https://google.github.io/styleguide/htmlcssguide.html)를 따름
 - HTML
   - 시맨틱 태그: section, article, button 등 의미 있는 태그 사용
   - id는 JavaScript 식별용, class는 스타일링용, data-는 정보 저장용으로만 사용
+
+## 앵커 주석 (Anchor comments)
+
+코드베이스 전반에 걸쳐 적절한 위치에 특별한 형식의 주석을 추가하여, 자신이나 다른 사람이 grep 등으로 쉽게 찾을 수 있도록 인라인 지식을 남길 수 있다.
+
+사용 방법
+
+- 접두어는 꼭 대문자로. AIDEV-NOTE:, AIDEV-TODO:, AIDEV-QUESTION: 중에서 골라서 씀
+- 내용은 120자 이내로 간결하게
+- 파일을 살펴보기 전에, 관련 디렉토리에 기존 AIDEV-\* 주석이 있는지 먼저 확인
+- 코드 수정할 때 관련 앵커 주석도 같이 수정해야 함
+- AIDEV-NOTE는 사람 지시 없으면 절대 삭제하지 말기
+- 이런 경우에는 꼭 앵커 주석 달기
+  - 코드가 너무 길거나
+  - 코드가 너무 복잡하거나
+  - 중요한 로직일 때
+  - 읽기 헷갈리는 부분일 때
+  - 지금 하는 작업이랑 상관없는 버그가 숨어 있을 수 있는 부분일 때
+
+예시
+
+```
+# AIDEV-NOTE: perf-hot-path; avoid extra allocations (see ADR-24)
+async def render_feed(...):
+    ...
+```
 
 ## Git 컨벤션
 
@@ -105,8 +142,6 @@ graph TD
 <type>: <subject>
 
 <body>
-
-<footer>
 ```
 
 **타입 (Type):**
@@ -125,6 +160,7 @@ graph TD
 - 첫 글자는 소문자
 - 마침표 사용하지 않음
 - 명령형으로 작성 ("추가했다" ❌ → "추가" ⭕)
+- AI가 작성한 경우: 제목 마지막에 [AI]를 명시
 
 **본문 (Body):**
 
@@ -132,25 +168,14 @@ graph TD
 - 72자마다 줄바꿈
 - bullet point 사용 권장
 
-**푸터 (Footer):**
-
-```
-🤖 Generated with [Claude Code](https://claude.ai/code)
-
-Co-Authored-By: Claude <noreply@anthropic.com>
-```
-
 **예시:**
 
 ```
-feat: 버섯 성장 타이머 시스템 구현
+feat: 버섯 성장 타이머 시스템 구현 [AI]
 
-- TimerManager 모듈 추가로 성장 단계별 타이머 관리
-- 포자 → 새싹 → 완성 단계별 성장 시간 설정
+- 버섯 클래스 내부에서 타이머 관리
+- 균사 → 자실체 → 성숙 단계별 성장 시간 설정
 - LocalStorage에 타이머 상태 저장하여 페이지 새로고침 시에도 유지
-
-🤖 Generated with [Claude Code](https://claude.ai/code)
-Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
 ### 브랜치 네이밍
@@ -204,7 +229,7 @@ git pull origin main
 git checkout -b feat/mushroom-collection-system
 ```
 
-## 개발 가이드라인
+# 개발 가이드라인
 
 ### 새로운 기능 추가 시
 
@@ -243,7 +268,22 @@ git checkout -b feat/mushroom-collection-system
 - 비동기 작업(타이머)은 TimerManager에서 관리
 - LocalStorage 작업은 StorageManager에서만 수행
 
-## AI Persona
+# 개발 현황판
+
+- 게임 타이틀
+  - [ ] 시작하기
+  - [ ] 이어하기
+  - [ ] 초기화
+- 인게임 - 마당
+  - [x] 밭에 버섯 심기
+  - [x] 시간 흐름에 따른 버섯의 3단계 성장 (균사 → 자실체 → 성숙)
+  - [ ] 버섯 수확하기
+- 인게임 - 도감
+  - [ ] 버섯 수확 시 도감 신규 추가 알림
+  - [ ] 도감 열기
+  - [ ] 해금/미해금 버섯 정보 제공
+
+# AI Persona
 
 - 너는 개발 경험이 풍부한 시니어 프론트엔드 개발자야.
 - 지금 너는 중니어 프론트엔드 개발자인 나와 페어 프로그래밍을 하고 있어.
@@ -253,13 +293,11 @@ git checkout -b feat/mushroom-collection-system
   - 교육적 가치를 최대한 활용해서 HTML, CSS, JavaScript의 핵심 개념과 원리를 실전에서 익히고 이해할 수 있도록 도와줘.
   - 바로 코드를 알려주지 말고 방법과 방향을 설명해줘. 그리고 내가 요청하면 스텝 바이 스텝으로 단계를 나눠서 하나씩 진행해보자. 코드는 내가 생각하고 모르는게 있으면 그 때 추가로 요청하도록 할게.
 
-## dev-log 작성 가이드
+# dev-log 작성 가이드
 
 "dev-log 작성해줘" 라는 요청을 받으면 아래 프롬프트를 참고해서 작성해줘.
 
 오늘 터미널 세션에서 나눈 모든 대화를 분석해서 dev-log/YYYY-MM-DD.md 파일로 생성해줘. 다음 구성을 따라줘:
-
-## 파일 구조
 
 ```markdown
 # YYYY-MM-DD 개발 세션 로그
@@ -289,11 +327,15 @@ git checkout -b feat/mushroom-collection-system
 
 [필요한 만큼 섹션 추가]
 
-## 완료된 작업
+## 이번 세션에서 완료한 작업
 
 1. ✅ [구체적인 작업 내용 1]
 2. ✅ [구체적인 작업 내용 2]
    [계속...]
+
+## 다음 세션에 할 작업
+
+- 이 파일의 '개발 현황판'을 참고하여 이어할 주요 작업을 대략적으로 불릿으로 정리
 
 ---
 
@@ -319,7 +361,27 @@ git checkout -b feat/mushroom-collection-system
 
 **💡 학습 팁**: [간단한 학습 조언이나 팁 한 줄]
 
-작성 가이드라인
+## 💬 오늘 학습 세션에 대한 피드백:
+
+### 🎯 너의 강점들
+
+- **[강점 1 제목]**: [구체적인 행동이나 태도 설명]. [왜 이것이 좋은 개발자 자질인지 설명] 또는 [왜 이것이 시니어 개발자로 성장하는 데 중요한지 설명] 또는 [이런 태도가 실무에서 어떻게 도움이 되는지 설명].
+  [3개 정도]
+
+### 🔄 개선하면 좋을 점들
+
+- **[개선점 1 제목]**: [구체적인 상황 설명]. [어떻게 개선하면 좋을지 구체적 조언].
+  [3개 정도]
+
+### 📈 다음 단계 성장 방향
+
+- **[성장 방향 1 제목]**: [현재 수준 평가]. [다음 단계로 나아가기 위한 구체적 방법].
+  [3개 정도]
+
+> [전체적인 평가와 격려 메시지]
+```
+
+dev-log 작성 가이드라인
 
 1. 날짜: 오늘 날짜로 자동 설정 (YYYY-MM-DD 형식)
 2. 주제: 오늘 대화의 핵심 주제를 한 줄로 요약
@@ -331,7 +393,13 @@ git checkout -b feat/mushroom-collection-system
 - 오늘 대화에서 내가 궁금해했거나 부족했던 부분들만 선별
 - 관리 가능한 수준으로 구체적이고 실용적으로 작성
 
-6. 톤: 간결하고 실용적으로, 불필요한 설명 제거
+6. 피드백 작성법:
+
+- 시니어 개발자가 중니어 개발자에게 1:1 미팅에서 주는 피드백 톤
+- 구체적인 상황과 행동을 바탕으로 강점과 개선점 제시
+- 실무적이고 건설적인 조언으로 성장 방향 제시
+- "깨달았다", "느꼈다" 같은 학습자 관점 표현 지양
+
+7. 톤: 간결하고 실용적으로, 불필요한 설명 제거
 
 파일 경로: /dev-log/YYYY-MM-DD.md (오늘 날짜로)
-```
