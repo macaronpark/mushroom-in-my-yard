@@ -15,7 +15,12 @@ export const GameLogic = {
     EventBus.emit({
       from: FROM,
       e: CONFIG.EVENT_ID.SET_NEW_MUSHROOM,
-      data: { mushroom: new Mushroom({ fieldID }) },
+      data: {
+        mushroom: new Mushroom({
+          fieldID,
+          mushroomType: CONFIG.MUSHROOM.RED_CAP.type,
+        }),
+      },
     });
   },
 };

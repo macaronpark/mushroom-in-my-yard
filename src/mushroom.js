@@ -4,8 +4,9 @@ import { EventBus } from './event-bus';
 export class Mushroom {
   #growthTimerID;
 
-  constructor({ fieldID }) {
-    const { id, type, name, rarity, growthTime } = CONFIG.MUSHROOM.RED_CAP;
+  constructor({ fieldID, mushroomType }) {
+    const { id, type, name, rarity, growthTime } =
+      CONFIG.MUSHROOM[mushroomType];
 
     this.fieldID = fieldID;
     this.plantedTime = Date.now();
