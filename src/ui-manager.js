@@ -25,18 +25,18 @@ export const UIManager = {
       const isFieldClicked = target.id.includes('field');
       if (!isFieldClicked) return;
 
-      this.handleFieldClick({
-        fieldID: target.id,
-        isEmpty: target.classList.contains('field--empty'),
-      });
+      const isFieldEmpty = target.classList.contains('field--empty');
+      if (!isFieldEmpty) return;
+
+      this.handleFieldClick({ fieldID: target.id });
     });
   },
 
-  handleFieldClick({ fieldID, isEmpty }) {
+  handleFieldClick({ fieldID }) {
     EventBus.emit({
       from: FROM,
       e: CONFIG.EVENT_ID.FIELD_CLICKED,
-      data: { fieldID, isEmpty },
+      data: { fieldID },
     });
   },
 

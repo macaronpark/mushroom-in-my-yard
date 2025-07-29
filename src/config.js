@@ -100,30 +100,11 @@ export const CONFIG = {
      * 밭 클릭 이벤트
      *
      * @event {string} FIELD_CLICKED
-     * @description 사용자가 게임 화면의 밭을 클릭했을 때 발생
-     * @emitter {string} UIManager - 밭 DOM 요소 클릭 시 (handleFieldClick 메서드)
-     * @listener {string} GameLogic - 밭 상태 검증 후 버섯 심기 로직 실행
+     * @description 사용자가 게임 화면의 빈 밭을 클릭했을 때 발생
+     * @emitter {string} UIManager - 빈 밭 DOM 요소 클릭 시 (handleFieldClick 메서드)
+     * @listener {string} GameLogic - 버섯 심기 로직 실행
      * @data {Object} 클릭된 밭 정보
      * @data.fieldID {string} 클릭된 밭의 고유 ID (예: 'field-1', 'field-2')
-     * @data.isEmpty {boolean} 밭이 비어있는지 여부 (true: 비어있음, false: 버섯 있음)
-     *
-     * @example
-     * // UIManager에서 발생
-     * EventBus.emit({
-     *   from: CONFIG.MODULE_ID.UI_MANAGER,
-     *   e: CONFIG.EVENT_ID.FIELD_CLICKED,
-     *   data: { fieldID: 'field-1', isEmpty: true }
-     * });
-     *
-     * // GameLogic에서 수신
-     * EventBus.on({
-     *   from: CONFIG.MODULE_ID.GAME_LOGIC,
-     *   e: CONFIG.EVENT_ID.FIELD_CLICKED,
-     *   callback: ({ fieldID, isEmpty }) => {
-     *     if (!isEmpty) return;
-     *     this.plant({ fieldID });
-     *   }
-     * });
      */
     FIELD_CLICKED: 'fieldClicked',
     /**
