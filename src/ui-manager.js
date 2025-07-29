@@ -76,32 +76,27 @@ export const UIManager = {
   },
 
   updateMushroom({ mushroom }) {
-    const mushroomEl = document.getElementById(mushroom.id);
+    const { id, name, growthStage } = mushroom;
+    const mushroomEl = document.getElementById(id);
 
     if (!mushroomEl) {
       Logger.error({
         from: FROM,
-        msg: `❌ updateMushroomGrowthStage: ${mushroom.id} not found`,
+        msg: `❌ updateMushroomGrowthStage: ${id} not found`,
       });
       return;
     }
 
-    mushroomEl.style.backgroundColor =
-      mushroom.growthStage === CONFIG.GROWTH_STAGE.MYCELIUM
-        ? 'lightGray'
-        : mushroom.growthStage === CONFIG.GROWTH_STAGE.FRUITING
-          ? 'yellow'
-          : 'red';
-
-    mushroomEl.textContent =
-      mushroom.name +
-      '버섯_' +
-      (mushroom.growthStage === CONFIG.GROWTH_STAGE.MYCELIUM
-        ? 'MYCELIUM'
-        : mushroom.growthStage === CONFIG.GROWTH_STAGE.FRUITING
-          ? 'FRUITING'
-          : 'MATURE');
+    const { backgroundColor } = MUSHROOM_STYLES[growthStage];
+    mushroomEl.style.backgroundColor = backgroundColor;
+    mushroomEl.textContent = name + '버섯_' + growthStage;
   },
 };
 
 const FROM = CONFIG.MODULE_ID.UI_MANAGER;
+
+const MUSHROOM_STYLES = {
+  [CONFIG.GROWTH_STAGE.MYCELIUM]: { backgroundColor: 'lightGray' },
+  [CONFIG.GROWTH_STAGE.FRUITING]: { backgroundColor: 'yellow' },
+  [CONFIG.GROWTH_STAGE.MATURE]: { backgroundColor: 'red' },
+};
