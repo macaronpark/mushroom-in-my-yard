@@ -32,9 +32,9 @@ export const GameState = {
     EventBus.on({
       from: FROM,
       e: CONFIG.EVENT_ID.UPDATE_MUSHROOM_GROWTH_STAGE,
-      callback: ({ mushroomID, nextGrowthStage }) =>
+      callback: ({ fieldID, nextGrowthStage }) =>
         this.updateMushroomGrowthStage({
-          mushroomID,
+          fieldID,
           nextGrowthStage,
         }),
     });
@@ -62,11 +62,10 @@ export const GameState = {
     });
   },
 
-  updateMushroomGrowthStage({ mushroomID, nextGrowthStage }) {
-    const fieldID = mushroomID.split('_')?.[0];
-    if (!fieldID) return;
+  updateMushroomGrowthStage({ fieldID, nextGrowthStage }) {
+    const field = this.getField({ fieldID });
+    if (!field) return;
 
-    const field = this.getField({ fieldID: fieldID });
     field.mushroom.growthStage = nextGrowthStage;
 
     EventBus.emit({

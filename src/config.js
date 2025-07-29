@@ -162,7 +162,7 @@ export const CONFIG = {
      * @emitter {string} Mushroom - 성장 타이머 완료 시 (#growTo 메서드)
      * @listener {string} GameState - 버섯 성장 상태 업데이트
      * @data {Object} 성장 정보
-     * @data.mushroomID {string} 성장한 버섯 ID
+     * @data.fieldID {string} 버섯이 심긴 밭 ID
      * @data.nextGrowthStage {string} 변경된 성장 단계 (MYCELIUM|FRUITING|MATURE)
      *
      * @example
@@ -170,14 +170,14 @@ export const CONFIG = {
      * EventBus.emit({
      *   from: CONFIG.MODULE_ID.mushroom({ id: this.id }),
      *   e: CONFIG.EVENT_ID.UPDATE_MUSHROOM_GROWTH_STAGE,
-     *   data: { mushroomID: this.id, nextGrowthStage: 'FRUITING' }
+     *   data: { fieldID: this.fieldID, nextGrowthStage: 'FRUITING' }
      * });
      *
      * // GameState에서 수신
      * EventBus.on({
      *   from: CONFIG.MODULE_ID.GAME_STATE,
      *   e: CONFIG.EVENT_ID.UPDATE_MUSHROOM_GROWTH_STAGE,
-     *   callback: ({ mushroomID, nextGrowthStage }) => {
+     *   callback: ({ fieldID, nextGrowthStage }) => {
      *     // 버섯 상태 업데이트 로직
      *   }
      * });

@@ -53,7 +53,7 @@ export class Mushroom {
     EventBus.emit({
       from: CONFIG.MODULE_ID.mushroom({ id: this.id }),
       e: CONFIG.EVENT_ID.UPDATE_MUSHROOM_GROWTH_STAGE,
-      data: { mushroomID: this.id, nextGrowthStage: nextStage },
+      data: { fieldID: this.fieldID, nextGrowthStage: nextStage },
     });
   }
 

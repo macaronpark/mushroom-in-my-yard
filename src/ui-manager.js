@@ -82,7 +82,7 @@ export const UIManager = {
     if (!mushroomEl) {
       Logger.error({
         from: FROM,
-        msg: `❌ updateMushroomGrowthStage: ${id} not found`,
+        msg: `❌ updateMushroom: ${id} not found`,
       });
       return;
     }
