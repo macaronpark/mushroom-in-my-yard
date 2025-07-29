@@ -1,10 +1,9 @@
 - [프로젝트 개요](#프로젝트-개요)
 - [아키텍처](#아키텍처)
-  - [전체 시스템 구조](#전체-시스템-구조)
-    - [핵심 설계 원칙](#핵심-설계-원칙)
-    - [모듈별 역할](#모듈별-역할)
-    - [이벤트](#이벤트)
-    - [파일 구조](#파일-구조)
+  - [핵심 설계 원칙](#핵심-설계-원칙)
+  - [모듈별 역할](#모듈별-역할)
+  - [이벤트](#이벤트)
+  - [파일 구조](#파일-구조)
 - [컨벤션](#컨벤션)
   - [코딩 컨벤션](#코딩-컨벤션)
   - [앵커 주석 (Anchor comments)](#앵커-주석-anchor-comments)
@@ -36,46 +35,71 @@
 
 # 아키텍처
 
-## 전체 시스템 구조
+단방향 데이터 흐름(Unidirectional Data Flow)을 기반으로 한 이벤트 기반 아키텍처(Event-Driven
+Architecture)
 
 ```mermaid
 graph TD
-    EventBus["EventBus<br/><sub>중앙 이벤트 관리</sub>"]
+  subgraph "이벤트 흐름 (쓰기 & 알림)"
+      UIManager -- "(1) 사용자 입력" --> EventBus
+      EventBus -- "(2) 로직 실행 요청" --> GameLogic
+      GameLogic -- "(3) 상태 변경 이벤트" --> EventBus
+      EventBus -- "(4) 상태 업데이트 요청" --> GameState
+      GameState -- "(5) 상태 변경 완료 알림" --> EventBus
+      EventBus -- "(6) 화면 갱신 요청" --> UIManager
+  end
 
-    GameState["GameState<br/><sub>게임 상태/데이터 관리</sub>"]
-    GameLogic["GameLogic<br/><sub>게임 비즈니스 로직</sub>"]
-    UIManager["UIManager<br/><sub>화면 렌더링 관리</sub>"]
-    StorageManager["StorageManager<br/><sub>데이터 저장/로드</sub>"]
+  subgraph "데이터 직접 읽기 (조회)"
+      direction LR
+      GameState_R[GameState] -.-> GameLogic_R[GameLogic]
+      GameState_R[GameState] -.-> UIManager_R[UIManager]
+  end
 
-     GameState --> EventBus
-     GameLogic --> EventBus
-     UIManager --> EventBus
-     StorageManager --> EventBus
-
+  %% 스타일링
+  style GameState fill:#c154c1,stroke:#333,stroke-width:2px
+  style GameState_R fill:#c154c1,stroke:#333,stroke-width:2px
 ```
 
-### 핵심 설계 원칙
+## 핵심 설계 원칙
 
-- 관심사의 분리, 단일 책임 원칙
-- 데이터와 뷰의 분리: 뷰는 데이터를 받아서 렌더링만
-- 이벤트 기반: EventBus를 통한 모듈 간 통신
-- 설정 중심 설계: 모든 설정 값을 한 곳에 (config.js) 정의
+**➡️데이터는 한 방향으로만 흐른다➡️**
 
-### 모듈별 역할
+이 원칙을 지키기 위해 각 모듈은 아래와 같이 단 하나의 역할만 책임진다.
 
-- **main.js**: 애플리케이션 초기화 및 전체 조율
-- **EventBus**: 중앙 이벤트 관리. 모든 이벤트는 EventBus를 통해 처리
-- **GameState**: 순수한 데이터 계층. 검증 로직 없이 요청받은 데이터만 변경
-- **GameLogic**: 비즈니스 로직 계층. 조건 검증 후 GameState 업데이트 이벤트 호출
-- **UIManager**: GameState 기반 렌더링 관리
+## 모듈별 역할
 
-### 이벤트
+- (1) **GameState** (데이터 저장소 - The Single Source of Truth)
+  - 역할: 게임의 모든 상태(버섯, 도감)를 저장하고 관리하는 유일한 공간
+  - 규칙
+    - `EventBus`로 받은 이벤트에 의해서만 자신의 데이터를 변경할 수 있다.
+    - 절대 다른 모듈(`GameLogic`, `UIManger` 등)을 직접 참조하거나, 존재를 알아서는 안 된다.
+    - 자신의 데이터를 변경하는 로직 외엔 어떤 비즈니스 로직도 포함해서는 안된다.
+    - 다른 모듈이 데이터를 읽어갈 수 있도록 `getState()`, `getMushrooms()` 같은 getter 함수를 제공할 수 있다.
+- (2) **GameLogic** (두뇌)
+  - 역할: 게임의 모든 규칙과 로직을 결정하고 실행하는 유일한 공간
+  - 규칙
+    - 상태를 결정하기 위해 `GameState`의 데이터를 직접 읽을 수 있다.
+    - 읽어온 데이터를 바당으로 '무엇을 할지' 결정한다.
+    - 결정이 내려지면, 절대 `GameState`를 직접 수정하지 않는다.
+    - 대신 EventBus에 상태를 이렇게 변경해달라는 이벤트(명령)를 보낸다.
+- (3) **UIManager** (화면)
+  - 역할: 사용자에게 보여지는 모든 UI를 그리고, 사용자로부터 입력을 받는 유일한 공간
+  - 규칙
+    - 화면을 그리기 위해 `GameState`의 데이터를 직접 읽을 수 있다.
+    - `EventBus`로부터 '상태가 변경되었다'는 이벤트를 구독하여, 변경된 데이터에 맞춰 화면을 다시 그린다.
+    - 사용자가 버튼을 클릭하는 등의 행동을 하면, 그 행동을 해석해서 `EventBus`에 "사용자가 이런 행동을 했다"는 이벤트를 보낸다. (예: FIELD_CLICKED)
+    - 절대 `GameState`나 `GameLogic`을 직접 수정하거나 호출하지 않는다.
+- (4) **EventBus** (신경계)
+  - 역할: 모든 모듈 간의 통신을 중재하는 유일한 창구
+  - 규칙
+    - 모든 모듈은 다른 모듈과 소통하고 싶을 때 `EventBus`를 통해야 한다.
+    - emit(발행)과 on(구독) 기능만 제공한다.
+
+## 이벤트
 
 이벤트 목록과 설명은 [src/config.js](/src/config.js) `EVENT_ID` 참고
 
-### 파일 구조
-
-// todo: 설명 추가
+## 파일 구조
 
 ```
 - 📂 /mushroom-in-my-yard
