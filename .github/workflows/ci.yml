@@ -50,9 +50,21 @@ jobs:
                 return;
               }
 
-              const coverageTable = cleanedOutput.substring(tableStartIndex).trim();
-              const comment = `### 🧪 Coverage Report\n\n\`\`\`text\n${coverageTable}\n\`\`\``;
+              const tableText = cleanedOutput.substring(tableStartIndex).trim();
+              const lines = tableText.split('\n');
 
+              const header = lines[1];
+              const separator = lines[2];
+              const body = lines.slice(3, -1);
+
+              const markdownTable = [
+                `| ${header.split('|').map(cell => cell.trim()).join(' | ')} |`,
+                `| ${separator.split('|').map(() => '---').join(' | ')} |`, // Markdown 구분선 형식으로 변경
+                ...body.map(line => `| ${line.split('|').map(cell => cell.trim()).join(' | ')} |`)
+              ].join('\n');
+
+              const comment = `### 🧪 Coverage Report\n\n${markdownTable}`;
+              
               await github.rest.issues.createComment({
                 issue_number: context.issue.number,
                 owner: context.repo.owner,
