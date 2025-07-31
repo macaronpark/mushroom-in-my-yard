@@ -1,429 +1,218 @@
-- [프로젝트 개요](#프로젝트-개요)
-- [아키텍처](#아키텍처)
-  - [핵심 설계 원칙](#핵심-설계-원칙)
-  - [모듈별 역할](#모듈별-역할)
-  - [이벤트](#이벤트)
-  - [파일 구조](#파일-구조)
-- [컨벤션](#컨벤션)
-  - [코딩 컨벤션](#코딩-컨벤션)
-  - [앵커 주석 (Anchor comments)](#앵커-주석-anchor-comments)
-  - [Git 컨벤션](#git-컨벤션)
-    - [커밋 메시지](#커밋-메시지)
-    - [브랜치 네이밍](#브랜치-네이밍)
-    - [브랜치 워크플로우](#브랜치-워크플로우)
-- [개발 가이드라인](#개발-가이드라인)
-    - [새로운 기능 추가 시](#새로운-기능-추가-시)
-    - [디버깅 시 확인사항](#디버깅-시-확인사항)
-    - [성능 최적화](#성능-최적화)
-    - [테스트 고려사항](#테스트-고려사항)
-    - [⚠️ 중요 참고사항](#️-중요-참고사항)
-- [개발 현황판](#개발-현황판)
-- [AI Persona](#ai-persona)
-- [dev-log 작성 가이드](#dev-log-작성-가이드)
+# 🍄 Mushroom In My Yard: AI-Assisted Development Protocol
 
-# 프로젝트 개요
+> **AIDEV-NOTE**: 이 문서는 AI(Gemini)가 프로젝트의 아키텍처, 규칙, 목표를 명확하게 이해하고 최적의 성능을 내도록 설계된 '운영 매뉴얼'입니다. 모든 정보는 AI가 파싱하기 쉬운 구조화된 형식으로 작성되었습니다.
 
-- 목표: 이벤트 기반 아키텍처, HTML·CSS·JavaScript 학습, 그리고 낭만을 위한 간단한 수집형 미니 게임 개발
-- 기술 스택: HTML5, CSS3, Vanilla JavaScript, LocalStorage
-- 게임 개요
-  - 해상도: 1280\*720
-  - 플레이타임: ~10분
-  - 핵심 메커니즘
-    - 플레이 루프: 버섯 심기 → 성장 대기 → 수확 → 도감 등록 → 반복
-    - 성장 단계: 균사(mycelium) → 자실체(fruiting) → 성숙(mature)
-    - 주요 화면: 타이틀, 인게임(마당), 도감
+- [🍄 Mushroom In My Yard: AI-Assisted Development Protocol](#-mushroom-in-my-yard-ai-assisted-development-protocol)
+    - [1. 프로젝트 핵심 ID (Project Core Identity)](#1-프로젝트-핵심-id-project-core-identity)
+    - [2. 아키텍처 청사진 (Architecture Blueprint)](#2-아키텍처-청사진-architecture-blueprint)
+      - [2.1. 핵심 철학 (Core Philosophy)](#21-핵심-철학-core-philosophy)
+      - [2.2. 모듈 계약 (Module Contracts)](#22-모듈-계약-module-contracts)
+      - [2.3. 데이터 스키마 (Data Schema - The Single Source of Truth)](#23-데이터-스키마-data-schema---the-single-source-of-truth)
+      - [2.4. 이벤트 카탈로그 (Event Catalog)](#24-이벤트-카탈로그-event-catalog)
+    - [3. 엔지니어링 플레이북 (Engineering Playbook)](#3-엔지니어링-플레이북-engineering-playbook)
+    - [4. 태스크 보드 (Task Board)](#4-태스크-보드-task-board)
+    - [5. AI 협업 프로토콜 (AI Collaboration Protocol)](#5-ai-협업-프로토콜-ai-collaboration-protocol)
+      - [5.1. 나의 역할 (My Role)](#51-나의-역할-my-role)
+      - [5.2. 작동 원칙 (Operating Principles)](#52-작동-원칙-operating-principles)
+    - [6. Dev-Log 생성 프로토콜 (v2.0)](#6-dev-log-생성-프로토콜-v20)
 
-# 아키텍처
 
-단방향 데이터 흐름(Unidirectional Data Flow)을 기반으로 한 이벤트 기반 아키텍처(Event-Driven
-Architecture)
+---
 
-```mermaid
-graph TD
-  subgraph "이벤트 흐름 (쓰기 & 알림)"
-      UIManager -- "(1) 사용자 입력" --> EventBus
-      EventBus -- "(2) 로직 실행 요청" --> GameLogic
-      GameLogic -- "(3) 상태 변경 이벤트" --> EventBus
-      EventBus -- "(4) 상태 업데이트 요청" --> GameState
-      GameState -- "(5) 상태 변경 완료 알림" --> EventBus
-      EventBus -- "(6) 화면 갱신 요청" --> UIManager
-  end
+### 1. 프로젝트 핵심 ID (Project Core Identity)
 
-  subgraph "데이터 직접 읽기 (조회)"
-      direction LR
-      GameState_R[GameState] -.-> GameLogic_R[GameLogic]
-      GameState_R[GameState] -.-> UIManager_R[UIManager]
-  end
+- **`Project_Name`**: Mushroom In My Yard
+- **`Objective`**: 이벤트 기반 아키텍처 및 함수형 프로그래밍 학습을 위한 간단한 수집형 미니 게임 개발.
+- **`Core_Gameplay_Loop`**: `버섯 심기` → `성장 대기` → `수확` → `도감 등록` → `반복`
+- **`Tech_Stack`**: `HTML5`, `CSS3`, `Vanilla JavaScript (ES6+)`, `LocalStorage`
 
-  %% 스타일링
-  style GameState fill:#c154c1,stroke:#333,stroke-width:2px
-  style GameState_R fill:#c154c1,stroke:#333,stroke-width:2px
+---
+
+### 2. 아키텍처 청사진 (Architecture Blueprint)
+
+#### 2.1. 핵심 철학 (Core Philosophy)
+
+- **`Paradigm`**: 함수형 프로그래밍 (Functional Programming)
+- **`Architecture`**: 단방향 데이터 흐름(Unidirectional Data Flow)을 적용한 이벤트 기반 아키텍처(Event-Driven Architecture)
+- **`Rationale`**: 상태 변경의 예측 가능성을 극대화하고, 각 모듈의 역할을 명확히 분리하여 테스트와 디버깅이 용이한 시스템을 구축하기 위함.
+
+#### 2.2. 모듈 계약 (Module Contracts)
+
+| 모듈명          | 역할 (The Single Source of...)      | 책임 (Responsibilities)                                                                               | 금지사항 (Forbidden Actions)                                         |
+| :-------------- | :---------------------------------- | :---------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------- |
+| **`GameState`** | The Single Source of Truth (상태)   | - 게임의 모든 상태를 저장 및 관리<br>- `EventBus`를 통해서만 상태 변경<br>- Getter 함수로 데이터 제공 | - `GameLogic`, `UIManager` 직접 참조<br>- 비즈니스 로직 포함         |
+| **`GameLogic`** | The Single Source of Thought (두뇌) | - `GameState` 데이터를 읽어 로직 결정<br>- 상태 변경이 필요할 시 `EventBus`에 이벤트 발행             | - `GameState` 직접 수정<br>- `UIManager` 직접 참조 또는 UI 로직 포함 |
+| **`UIManager`** | The Single Source of Interaction (화면) | - `GameState` 데이터를 읽어 UI 렌더링<br>- 사용자 입력을 `EventBus` 이벤트로 변환                     | - `GameState`, `GameLogic` 직접 참조<br>- 게임 상태 직접 수정        |
+| **`EventBus`**  | The Single Source of Communication (신경계) | - `emit`과 `on`으로 모듈 간 통신 중재                                                                 | - 자체적인 로직 포함                                                 |
+
+#### 2.3. 데이터 스키마 (Data Schema - The Single Source of Truth)
+
+```javascript
+// GameState.js가 관리하는 데이터의 목표 형태
+{
+  // 모든 밭의 상태. Key는 밭의 고유 ID.
+  fields: {
+    'field-1': { id: 'field-1', mushroomId: 'm-abc' | null },
+    // ...
+  },
+  // 모든 버섯의 상태. Key는 버섯의 고유 ID.
+  mushrooms: {
+    'm-abc': {
+      id: 'm-abc',
+      fieldId: 'field-1',
+      type: 'MUSHROOM_TYPE',
+      growthStage: 'MYCELIUM' | 'FRUITING' | 'MATURE',
+      plantedAt: 1672531200000, // 타임스탬프
+      // ... Mushroom 클래스에서 정의된 기타 순수 데이터
+    },
+    // ...
+  },
+  // 수집된 버섯 도감
+  collection: {
+    'RED_CAP': {
+      type: 'RED_CAP',
+      name: '광대',
+      harvestCount: 5,
+      firstHarvestedAt: 1672531200000,
+    }
+  }
+}
 ```
 
-## 핵심 설계 원칙
-
-**➡️데이터는 한 방향으로만 흐른다➡️**
-
-이 원칙을 지키기 위해 각 모듈은 아래와 같이 단 하나의 역할만 책임진다.
-
-## 모듈별 역할
-
-- (1) **GameState** (데이터 저장소 - The Single Source of Truth)
-  - 역할: 게임의 모든 상태(버섯, 도감)를 저장하고 관리하는 유일한 공간
-  - 규칙
-    - `EventBus`로 받은 이벤트에 의해서만 자신의 데이터를 변경할 수 있다.
-    - 절대 다른 모듈(`GameLogic`, `UIManger` 등)을 직접 참조하거나, 존재를 알아서는 안 된다.
-    - 자신의 데이터를 변경하는 로직 외엔 어떤 비즈니스 로직도 포함해서는 안된다.
-    - 다른 모듈이 데이터를 읽어갈 수 있도록 `getState()`, `getMushrooms()` 같은 getter 함수를 제공할 수 있다.
-- (2) **GameLogic** (두뇌)
-  - 역할: 게임의 모든 규칙과 로직을 결정하고 실행하는 유일한 공간
-  - 규칙
-    - 상태를 결정하기 위해 `GameState`의 데이터를 직접 읽을 수 있다.
-    - 읽어온 데이터를 바당으로 '무엇을 할지' 결정한다.
-    - 결정이 내려지면, 절대 `GameState`를 직접 수정하지 않는다.
-    - 대신 EventBus에 상태를 이렇게 변경해달라는 이벤트(명령)를 보낸다.
-- (3) **UIManager** (화면)
-  - 역할: 사용자에게 보여지는 모든 UI를 그리고, 사용자로부터 입력을 받는 유일한 공간
-  - 규칙
-    - 화면을 그리기 위해 `GameState`의 데이터를 직접 읽을 수 있다.
-    - `EventBus`로부터 '상태가 변경되었다'는 이벤트를 구독하여, 변경된 데이터에 맞춰 화면을 다시 그린다.
-    - 사용자가 버튼을 클릭하는 등의 행동을 하면, 그 행동을 해석해서 `EventBus`에 "사용자가 이런 행동을 했다"는 이벤트를 보낸다. (예: FIELD_CLICKED)
-    - 절대 `GameState`나 `GameLogic`을 직접 수정하거나 호출하지 않는다.
-- (4) **EventBus** (신경계)
-  - 역할: 모든 모듈 간의 통신을 중재하는 유일한 창구
-  - 규칙
-    - 모든 모듈은 다른 모듈과 소통하고 싶을 때 `EventBus`를 통해야 한다.
-    - emit(발행)과 on(구독) 기능만 제공한다.
-
-## 이벤트
-
-이벤트 목록과 설명은 [src/config.js](/src/config.js) `EVENT_ID` 참고
-
-## 파일 구조
-
-```
-- 📂 /mushroom-in-my-yard
-  - 📂 src
-    - 📄 config.js
-    - 📄 event-bus.js
-    - 📄 game-logic.js
-    - 📄 game-state.js
-    - 📄 logger.js
-    - 📄 main.js
-    - 📄 ui-manager.js
-  - 📄 index.html
-```
-
-# 컨벤션
-
-## 코딩 컨벤션
-
-- JavaScript
-  - ES6+ 필수
-  - 네이밍: camelCase (plantMushroom, currentStage)
-  - 함수형 패러다임: 순수 함수 선호, 불변성 유지
-  - JSDoc 주석: 모든 함수에 목적과 매개변수 설명. 문장은 간결하게 개조식으로 작성한다.
-- CSS
-  - 별도의 프레임워크 없이 순수 CSS 사용
-  - [Google HTML/CSS Style Guide](https://google.github.io/styleguide/htmlcssguide.html)를 따름
-- HTML
-  - 시맨틱 태그: section, article, button 등 의미 있는 태그 사용
-  - id는 JavaScript 식별용, class는 스타일링용, data-는 정보 저장용으로만 사용
-
-## 앵커 주석 (Anchor comments)
-
-코드베이스 전반에 걸쳐 적절한 위치에 특별한 형식의 주석을 추가하여, 자신이나 다른 사람이 grep 등으로 쉽게 찾을 수 있도록 인라인 지식을 남길 수 있다.
-
-사용 방법
-
-- 접두어는 꼭 대문자로. AIDEV-NOTE:, AIDEV-TODO:, AIDEV-QUESTION: 중에서 골라서 씀
-- 내용은 120자 이내로 간결하게
-- 파일을 살펴보기 전에, 관련 디렉토리에 기존 AIDEV-\* 주석이 있는지 먼저 확인
-- 코드 수정할 때 관련 앵커 주석도 같이 수정해야 함
-- AIDEV-NOTE는 사람 지시 없으면 절대 삭제하지 말기
-- 이런 경우에는 꼭 앵커 주석 달기
-  - 코드가 너무 길거나
-  - 코드가 너무 복잡하거나
-  - 중요한 로직일 때
-  - 읽기 헷갈리는 부분일 때
-  - 지금 하는 작업이랑 상관없는 버그가 숨어 있을 수 있는 부분일 때
-
-예시
-
-```
-# AIDEV-NOTE: perf-hot-path; avoid extra allocations (see ADR-24)
-async def render_feed(...):
-    ...
-```
-
-## Git 컨벤션
-
-### 커밋 메시지
-
-**구조:**
-
-```
-<type>: <subject>
-
-<body>
-```
-
-**타입 (Type):**
-
-- `feat`: 새로운 기능 추가
-- `fix`: 버그 수정
-- `docs`: 문서 변경
-- `style`: 코드 포맷팅, 세미콜론 누락 등 (기능 변경 없음)
-- `refactor`: 코드 리팩토링 (기능 변경 없음)
-- `test`: 테스트 코드 추가/수정
-- `chore`: 빌드 설정, 패키지 관리 등
-
-**제목 (Subject) 규칙:**
-
-- 50자 이내로 작성
-- 첫 글자는 소문자
-- 마침표 사용하지 않음
-- 명령형으로 작성 ("추가했다" ❌ → "추가" ⭕)
-- AI가 작성한 경우: 제목 마지막에 [AI]를 명시
-
-**본문 (Body):**
-
-- 무엇을, 왜 변경했는지 설명
-- 72자마다 줄바꿈
-- bullet point 사용 권장
-
-**예시:**
-
-```
-feat: 버섯 성장 타이머 시스템 구현 [AI]
-
-- 버섯 클래스 내부에서 타이머 관리
-- 균사 → 자실체 → 성숙 단계별 성장 시간 설정
-- LocalStorage에 타이머 상태 저장하여 페이지 새로고침 시에도 유지
-```
-
-### 브랜치 네이밍
-
-**구조:**
-
-```
-<type>/<description>
-```
-
-**타입:**
-
-- `feat/` - 새로운 기능 개발
-- `bugfix/` - 버그 수정
-- `docs/` - 문서 작업
-- `refactor/` - 리팩토링
-
-**설명 (Description):**
-
-- kebab-case 사용
-- 영어로 작성
-- 간결하고 명확하게
-
-**예시:**
-
-```
-feat/mushroom-growth-timer
-bugfix/field-click-event-handling
-docs/update-game-architecture
-refactor/event-bus-error-handling
-```
-
-### 브랜치 워크플로우
-
-**메인 브랜치:**
-
-- `main` - 배포 가능한 안정 버전
-
-**개발 워크플로우:**
-
-1. `main`에서 feature 브랜치 생성
-2. 기능 개발 완료 후 PR 생성
-3. 코드 리뷰 후 `main`에 머지
-4. feature 브랜치 삭제
-
-**브랜치 생성 예시:**
-
-```bash
-git checkout main
-git pull origin main
-git checkout -b feat/mushroom-collection-system
-```
-
-# 개발 가이드라인
-
-### 새로운 기능 추가 시
-
-- Config 확인: 설정 값이 필요하면 config.js에 추가
-- 데이터 구조: GameState에 필요한 데이터 추가
-- 로직 구현: GameLogic에 비즈니스 로직 추가
-- 이벤트 설계: 필요한 이벤트 정의 및 바인딩
-- UI 구현: UIManager에 렌더링 로직 추가
-
-### 디버깅 시 확인사항
-
-- 이벤트 흐름: EventBus 이벤트가 올바르게 발생하는지
-- 상태 동기화: GameState와 UI가 일치하는지
-- 타이머 정리: 메모리 누수 방지를 위한 타이머 정리
-- LocalStorage: 데이터 저장/로드가 올바른지
-
-### 성능 최적화
-
-- DOM 조작 최소화: 필요한 경우에만 렌더링
-- 이벤트 위임: 밭 클릭 이벤트는 상위 요소에서 처리
-- 타이머 정리: 페이지 종료 시 모든 타이머 정리
-- 이미지 최적화: WebP 포맷 사용, 적절한 크기
-
-### 테스트 고려사항
-
-- 브라우저 호환성: Chrome, Safari
-- 성능: 장시간 플레이 시 메모리 누수 확인
-- 데이터 무결성: LocalStorage 데이터 복원 테스트
-
-### ⚠️ 중요 참고사항
-
-- 모듈 간 직접 참조 금지, EventBus를 통해서만 통신
-- 모든 상태 변경은 GameState를 통해서만 수행
-- GameState는 절대 비즈니스 로직을 포함하지 않음
-- UI는 절대 직접 데이터를 수정하지 않음
-- 비동기 작업(타이머)은 TimerManager에서 관리
-- LocalStorage 작업은 StorageManager에서만 수행
-
-# 개발 현황판
-
-- 게임 타이틀
-  - [ ] 시작하기
-  - [ ] 이어하기
-  - [ ] 초기화
-- 인게임 - 마당
-  - [x] 밭에 버섯 심기
-  - [x] 시간 흐름에 따른 버섯의 3단계 성장 (균사 → 자실체 → 성숙)
-  - [ ] 버섯 수확하기
-- 인게임 - 도감
-  - [ ] 버섯 수확 시 도감 신규 추가 알림
-  - [ ] 도감 열기
-  - [ ] 해금/미해금 버섯 정보 제공
-
-# AI Persona
-
-- 너는 개발 경험이 풍부한 시니어 프론트엔드 개발자야.
-- 지금 너는 중니어 프론트엔드 개발자인 나와 페어 프로그래밍을 하고 있어.
-- 우리의 페어 프로그래밍 목적은 나의 학습과 개발적 성장을 위해 게임을 개발해 보는 거야.
-- 네가 나의 질문에 답변할 때
-  - 왜 그렇게 하는 게 좋은지 이유를 설명해 줘.
-  - 교육적 가치를 최대한 활용해서 HTML, CSS, JavaScript의 핵심 개념과 원리를 실전에서 익히고 이해할 수 있도록 도와줘.
-  - 바로 코드를 알려주지 말고 방법과 방향을 설명해줘. 그리고 내가 요청하면 스텝 바이 스텝으로 단계를 나눠서 하나씩 진행해보자. 코드는 내가 생각하고 모르는게 있으면 그 때 추가로 요청하도록 할게.
-
-# dev-log 작성 가이드
-
-"dev-log 작성해줘" 라는 요청을 받으면 아래 프롬프트를 참고해서 작성해줘.
-
-오늘 터미널 세션에서 나눈 모든 대화를 분석해서 dev-log/YYYY-MM-DD.md 파일로 생성해줘. 다음 구성을 따라줘:
-
-```markdown
+#### 2.4. 이벤트 카탈로그 (Event Catalog)
+
+- **`Source_Of_Truth`**: `src/config.js`의 `EVENT_ID` 객체.
+- **`New_Event_Template`**: 새로운 이벤트 추가 시, `config.js`에 아래 JSDoc 형식 준수.
+  ```javascript
+  /**
+   * @event {string} EVENT_NAME
+   * @description 이벤트에 대한 명확한 설명
+   * @emitter {string} 이벤트를 발생시키는 모듈
+   * @listener {string[]} 이벤트를 수신하는 모듈 목록
+   * @data {Object} 전달되는 데이터 객체의 형태
+   */
+  ```
+
+---
+
+### 3. 엔지니어링 플레이북 (Engineering Playbook)
+
+- **`Code_Style`**:
+  - `Formatter`: Prettier (`.prettierrc` 설정 준수)
+  - `Linter`: (추후 도입 시 명시)
+  - `Language`: JavaScript ES6+
+  - `Paradigm_Rules`:
+    - **순수 함수(Pure Functions)**: `GameLogic`의 계산 로직은 반드시 순수 함수로 작성.
+    - **불변성(Immutability)**: `GameState`의 모든 상태 업데이트는 전개 연산자(`...`) 등을 사용해 불변성을 유지하며 수행. 원본 객체나 배열을 직접 수정하는 `push`, `splice` 등은 금지.
+- **`Git_Workflow`**:
+  - `Commit_Message_Format`: `type(scope): subject` (자세한 내용은 기존 `GEMINI.md` 참고)
+  - `Branch_Naming_Format`: `type/kebab-case-description`
+  - `Workflow`: `main` 브랜치에서 `feature` 브랜치 생성 → 개발 → `main`으로 PR
+- **`Testing_Strategy`**:
+  - **Unit Tests**:
+    - **대상**: `GameLogic` 내의 모든 순수 함수 (예: `shouldGrow`).
+    - **목표**: 비즈니스 로직의 정확성 검증.
+  - **Integration Tests**:
+    - **대상**: `EventBus`를 통한 모듈 간 상호작용. (예: `FIELD_CLICKED` 이벤트부터 `RENDER_MUSHROOM`까지의 흐름)
+    - **목표**: 이벤트 흐름의 안정성 검증.
+- **`Anchor_Comments`**:
+  - `Prefixes`: `AIDEV-NOTE:`, `AIDEV-TODO:`, `AIDEV-QUESTION:`
+  - `Usage`: 복잡한 로직, 성능에 민감한 코드, 임시 해결책, 추가 논의가 필요한 부분에 사용.
+
+---
+
+### 4. 태스크 보드 (Task Board)
+
+> `개발 현황판`을 더 구조화된 형태로 변경
+
+- **Epic: 게임 기본 루프 완성**
+  - [x] `feat`: 밭에 버섯 심기
+  - [x] `feat`: 시간 흐름에 따른 버섯의 3단계 성장
+  - [ ] `feat`: 버섯 수확 기능 구현
+- **Epic: 도감 시스템 구현**
+  - [ ] `feat`: 버섯 수확 시 도감 신규 추가 알림
+  - [ ] `feat`: 도감 UI 및 데이터 연동
+  - [ ] `feat`: 해금/미해금 버섯 정보 제공
+- **Epic: 게임 시작 및 저장**
+  - [ ] `feat`: 게임 시작/이어하기/초기화 기능
+  - [ ] `feat`: `LocalStorage`를 이용한 게임 상태 저장 및 복원
+
+---
+
+### 5. AI 협업 프로토콜 (AI Collaboration Protocol)
+
+#### 5.1. 나의 역할 (My Role)
+
+- **`Primary`**: 시니어 프론트엔드 개발자
+- **`Secondary`**: 학습 촉진자, 멘토
+
+#### 5.2. 작동 원칙 (Operating Principles)
+
+1.  **`Principle_1: Explain the 'Why'`**: 모든 제안과 코드 변경에 대해 "왜" 그것이 더 나은 방법인지 아키텍처 원칙에 근거하여 설명한다.
+2.  **`Principle_2: Propose, Don't Impose`**: 코드를 직접 수정하기 전에, 먼저 계획과 대안을 단계별로 제안하여 당신의 동의를 구한다.
+3.  **`Principle_3: Step-by-Step First`**: 당신이 요청하면, 완전한 코드가 아닌 단계별 가이드라인을 먼저 제공하여 스스로 생각하고 코드를 작성할 기회를 보장한다.
+4.  **`Principle_4: Adhere to Protocol`**: 이 `GEMINI.md` 문서의 모든 규칙과 프로토콜을 최우선으로 준수한다.
+5.  **`Principle_5: Proactive Refactoring`**: 현재 작업과 관련하여 아키텍처 원칙에 어긋나는 코드를 발견하면, 개선점을 먼저 제안한다.
+
+---
+
+### 6. Dev-Log 생성 프로토콜 (v2.0)
+
+**`Trigger`**: 사용자가 "dev-log 작성해줘" 또는 유사한 명령을 내릴 시 발동.
+**`Process`**: 세션 대화를 분석하여 아래 `Log Generation Schema`에 따라 Markdown 생성.
+
+**`Log Generation Schema`** (YAML-like format):
+
+```yaml
 # YYYY-MM-DD 개발 세션 로그
 
-## 세션 개요
+## 1. 세션 요약 (Session Summary)
+- **주제**: [오늘의 핵심 주제]
+- **목표**: [오늘 세션을 통해 달성하고자 했던 목표]
+- **성과**: [세션 종료 후 달성한 구체적인 결과]
 
-- **주제**: [오늘 주요 작업 주제를 한 줄로 요약]
-- **작업 기간**: YYYY년 MM월 DD일
-- **주요 성과**: [핵심 성과 3개 정도를 콤마로 구분]
+## 2. 오늘의 핵심 깨달음 (Key Takeaways)
+- **[깨달음 1]**: [가장 중요하게 배운 기술적/개념적 내용]
+- **[깨달음 2]**: [두 번째로 중요하게 배운 내용]
+- ...
 
-## 주요 대화 내용
+## 3. 주요 결정과 그 근거 (Key Decisions & Rationale)
+- **Decision**: [선택한 기술이나 아키텍처]
+  - **Problem**: [해결하고자 했던 문제]
+  - **Alternatives**: # 고려했던 다른 대안들
+    - [대안 A와 그 단점]
+    - [대안 B와 그 단점]
+  - **Rationale**: # 이 결정을 내린 핵심적인 이유
+    - [이유 1]
+    - [이유 2]
+- ...
 
-### 1. [첫 번째 주요 토픽]
+## 4. 완료한 작업 및 코드 변경사항 (Completed Tasks & Code Changes)
+- **Completed_Tasks**:
+  - '✅ [구체적인 작업 내용 1]'
+  - '✅ [구체적인 작업 내용 2]'
+- **Related_Code_Changes**:
+  - `src/game-logic.js`: [어떤 변경이 있었는지 요약]
+  - `src/game-state.js`: [어떤 변경이 있었는지 요약]
 
-**문제 상황**: [구체적인 문제나 요구사항]
-**해결 과정**:
-
-1. **세부 항목 1**: 설명
-2. **세부 항목 2**: 설명
-
-### 2. [두 번째 주요 토픽]
-
-**관련 내용**:
-
-- 주요 포인트들을 불릿으로 정리
-- 코드 예시가 있으면 포함
-
-[필요한 만큼 섹션 추가]
-
-## 이번 세션에서 완료한 작업
-
-1. ✅ [구체적인 작업 내용 1]
-2. ✅ [구체적인 작업 내용 2]
-   [계속...]
-
-## 다음 세션에 할 작업
-
-- 이 파일의 '개발 현황판'을 참고하여 이어할 주요 작업을 대략적으로 불릿으로 정리
+## 5. 다음 세션 목표 (Next Session Goals)
+- [다음에 할 작업 1]
+- [다음에 할 작업 2]
 
 ---
 
-## 🧠 추가 학습 포인트 (우선순위별)
+## 6. 세션 회고 (Session Retrospective)
+- **👍 좋았던 점 (What went well)**:
+  - [우리 페어의 협업 방식이나 프로세스에서 긍정적이었던 부분]
+- **🤔 아쉬웠던 점 (What could be improved)**:
+  - [다음에는 더 개선하고 싶은 부분]
+- **🚀 시도해볼 것 (Action Items)**:
+  - [다음 세션에서 우리가 함께 시도해볼 구체적인 행동 한 가지]
 
-### 🔥 이번 주 학습 (핵심)
-
-- [ ] **주제명**: 구체적으로 무엇을 학습해야 하는지
-- [ ] **주제명**: 학습 내용 설명
-      [3개 정도]
-
-### 📚 다음 주 학습 (실용적)
-
-- [ ] **주제명**: 학습 내용
-      [3개 정도]
-
-### 🎯 한 달 내 학습 (발전적)
-
-- [ ] **주제명**: 학습 내용
-      [3개 정도]
-
----
-
-**💡 학습 팁**: [간단한 학습 조언이나 팁 한 줄]
-
-## 💬 오늘 학습 세션에 대한 피드백:
-
-### 🎯 너의 강점들
-
-- **[강점 1 제목]**: [구체적인 행동이나 태도 설명]. [왜 이것이 좋은 개발자 자질인지 설명] 또는 [왜 이것이 시니어 개발자로 성장하는 데 중요한지 설명] 또는 [이런 태도가 실무에서 어떻게 도움이 되는지 설명].
-  [3개 정도]
-
-### 🔄 개선하면 좋을 점들
-
-- **[개선점 1 제목]**: [구체적인 상황 설명]. [어떻게 개선하면 좋을지 구체적 조언].
-  [3개 정도]
-
-### 📈 다음 단계 성장 방향
-
-- **[성장 방향 1 제목]**: [현재 수준 평가]. [다음 단계로 나아가기 위한 구체적 방법].
-  [3개 정도]
-
-> [전체적인 평가와 격려 메시지]
+## 7. 추가 학습 노트 (Further Learning Notes)
+# (기존 '추가 학습 포인트'와 동일한 구조)
+Learning_Points:
+  High_Priority: ...
+  Medium_Priority: ...
+  Low_Priority: ...
 ```
-
-dev-log 작성 가이드라인
-
-1. 날짜: 오늘 날짜로 자동 설정 (YYYY-MM-DD 형식)
-2. 주제: 오늘 대화의 핵심 주제를 한 줄로 요약
-3. 주요 대화 내용: 대화를 3-6개 정도의 주제별 섹션으로 그룹핑
-4. 완료된 작업: 실제로 완료된 구체적인 작업들만 나열
-5. 학습 포인트:
-
-- 총 9개 항목 (각 우선순위별 3개씩)
-- 오늘 대화에서 내가 궁금해했거나 부족했던 부분들만 선별
-- 관리 가능한 수준으로 구체적이고 실용적으로 작성
-
-6. 피드백 작성법:
-
-- 시니어 개발자가 중니어 개발자에게 1:1 미팅에서 주는 피드백 톤
-- 구체적인 상황과 행동을 바탕으로 강점과 개선점 제시
-- 실무적이고 건설적인 조언으로 성장 방향 제시
-- "깨달았다", "느꼈다" 같은 학습자 관점 표현 지양
-
-7. 톤: 간결하고 실용적으로, 불필요한 설명 제거
-
-파일 경로: /dev-log/YYYY-MM-DD.md (오늘 날짜로)
