@@ -39,18 +39,26 @@ jobs:
             try {
               const output = fs.readFileSync('coverage-output.txt', 'utf8');
 
-              const comment = `### 🧪 Coverage report
-                \`\`\`
-                ${output}
-                \`\`\`
-              `;
-              
-              github.rest.issues.createComment({
+              const cleanedOutput = output.replace(
+                /[\u001b\u009b][[()#;?]*.?[0-9A-Za-z!]*[A-PR-Z0-9=:@-~]/g,
+                ''
+              );
+
+              const tableStartIndex = cleanedOutput.indexOf('-----------|');
+              if (tableStartIndex === -1) {
+                console.log('Coverage table not found. Skipping comment.');
+                return;
+              }
+
+              const coverageTable = cleanedOutput.substring(tableStartIndex).trim();
+              const comment = `### 🧪 Coverage Report\n\n\`\`\`text\n${coverageTable}\n\`\`\``;
+
+              await github.rest.issues.createComment({
                 issue_number: context.issue.number,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 body: comment
               });
             } catch (error) {
-              console.log('Error reading coverage output:', error);
+              console.log(`Error processing coverage report: ${error.message}`);
             }
