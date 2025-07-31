@@ -1,77 +1,93 @@
 import { CONFIG } from './config';
 import { EventBus } from './event-bus';
-import { Logger } from './logger';
 
 export const GameState = {
-  fieldList: [
-    {
-      id: 'field-1',
-      mushroom: null,
-    },
-    {
-      id: 'field-2',
-      mushroom: null,
-    },
-    {
-      id: 'field-3',
-      mushroom: null,
-    },
-  ],
+  fields: {
+    'field-1': { id: 'field-1', mushroomID: null },
+    'field-2': { id: 'field-2', mushroomID: null },
+    'field-3': { id: 'field-3', mushroomID: null },
+  },
+  mushrooms: {},
 
   init() {
-    Logger.log({ from: FROM, msg: '🐣 init' });
+    this.bindEvent();
+  },
 
+  bindEvent() {
     EventBus.on({
       from: FROM,
       e: CONFIG.EVENT_ID.SET_NEW_MUSHROOM,
-      callback: ({ mushroom }) => {
-        this.setNewMushroom({ mushroom });
+      callback: (props) => {
+        this.addNewMushroom(props);
       },
     });
 
     EventBus.on({
       from: FROM,
       e: CONFIG.EVENT_ID.UPDATE_MUSHROOM_GROWTH_STAGE,
-      callback: ({ fieldID, nextGrowthStage }) =>
+      callback: ({ mushroomID, nextGrowthStage }) =>
         this.updateMushroomGrowthStage({
-          fieldID,
+          mushroomID,
           nextGrowthStage,
         }),
     });
   },
 
-  getField({ fieldID }) {
-    const field = this.fieldList.find((f) => f.id === fieldID);
+  getMushroomList() {
+    const mushroomList = Object.values(this.mushrooms);
 
-    if (!field) {
-      Logger.error({ from: FROM, msg: `❌ getField: ${fieldID} not found` });
-      return;
-    }
-
-    return field;
+    return [...mushroomList];
   },
 
-  setNewMushroom({ mushroom }) {
-    const field = this.getField({ fieldID: mushroom.fieldID });
-    field.mushroom = mushroom;
+  getMushroom({ mushroomID }) {
+    const mushroom = this.mushrooms[mushroomID];
+
+    return { ...mushroom };
+  },
+
+  addNewMushroom(props) {
+    const { fieldID, id: mushroomID } = props;
+    const prevField = this.fields[fieldID];
+    const prevMushroom = this.mushrooms[mushroomID];
+
+    this.fields = {
+      ...this.fields,
+      [fieldID]: {
+        ...prevField,
+        mushroomID,
+      },
+    };
+
+    this.mushrooms = {
+      ...this.mushrooms,
+      [mushroomID]: {
+        ...prevMushroom,
+        ...props,
+      },
+    };
 
     EventBus.emit({
       from: FROM,
       e: CONFIG.EVENT_ID.RENDER_MUSHROOM,
-      data: { mushroom },
+      data: { mushroomID: props.id },
     });
   },
 
-  updateMushroomGrowthStage({ fieldID, nextGrowthStage }) {
-    const field = this.getField({ fieldID });
-    if (!field) return;
+  updateMushroomGrowthStage({ mushroomID, nextGrowthStage }) {
+    const prevMushroom = this.mushrooms[mushroomID];
 
-    field.mushroom.growthStage = nextGrowthStage;
+    this.mushrooms = {
+      ...this.mushrooms,
+      [mushroomID]: {
+        ...prevMushroom,
+        growthStage: nextGrowthStage,
+      },
+    };
 
     EventBus.emit({
       from: FROM,
       e: CONFIG.EVENT_ID.RENDER_MUSHROOM,
-      data: { mushroom: field.mushroom },
+      data: { mushroomID },
     });
   },
 };
