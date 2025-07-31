@@ -3,10 +3,7 @@ name: CI
 on:
   pull_request:
     branches:
-      - 'feat/*'
-      - 'bugfix/*'
-      - 'docs/*'
-      - 'refactor/*'
+      - 'main'
 
 jobs:
   test:
@@ -34,7 +31,6 @@ jobs:
           cat coverage-output.txt
 
       - name: Comment PR with coverage
-        if: github.event_name == 'pull_request'
         uses: actions/github-script@v7
         with:
           script: |
