@@ -1,23 +1,15 @@
 import { CONFIG } from './config';
 import { EventBus } from './event-bus';
+import { GameState } from './game-state';
 import { Logger } from './logger';
 
 export const UIManager = {
   init() {
     this.bindEvents();
-
-    Logger.log({ from: FROM, msg: '🐣 init' });
-
-    EventBus.on({
-      from: FROM,
-      e: CONFIG.EVENT_ID.RENDER_MUSHROOM,
-      callback: ({ mushroom }) => this.renderMushroom({ mushroom }),
-    });
   },
 
   bindEvents() {
     const yard = document.getElementById('game-yard');
-
     yard.addEventListener('click', (event) => {
       const target = event.target.closest('button');
       if (!target) return;
@@ -30,6 +22,12 @@ export const UIManager = {
 
       this.handleFieldClick({ fieldID: target.id });
     });
+
+    EventBus.on({
+      from: FROM,
+      e: CONFIG.EVENT_ID.RENDER_MUSHROOM,
+      callback: ({ mushroomID }) => this.renderMushroom({ mushroomID }),
+    });
   },
 
   handleFieldClick({ fieldID }) {
@@ -40,18 +38,18 @@ export const UIManager = {
     });
   },
 
-  renderMushroom({ mushroom }) {
-    const isExist = document.getElementById(mushroom.id);
+  renderMushroom({ mushroomID }) {
+    const isExist = document.getElementById(mushroomID);
 
     if (!isExist) {
-      this.plantMushroom({ mushroom });
+      this.plantMushroom({ mushroomID });
     }
 
-    this.updateMushroom({ mushroom });
+    this.updateMushroom({ mushroomID });
   },
 
-  plantMushroom({ mushroom }) {
-    const { fieldID, id } = mushroom;
+  plantMushroom({ mushroomID }) {
+    const { fieldID, id } = GameState.getMushroom({ mushroomID });
     const targetField = document.getElementById(fieldID);
 
     if (!targetField) {
@@ -75,8 +73,8 @@ export const UIManager = {
     Logger.log({ from: FROM, msg: `🌱 plantMushroom: ${id}` });
   },
 
-  updateMushroom({ mushroom }) {
-    const { id, name, growthStage } = mushroom;
+  updateMushroom({ mushroomID }) {
+    const { id, name, growthStage } = GameState.getMushroom({ mushroomID });
     const mushroomEl = document.getElementById(id);
 
     if (!mushroomEl) {
