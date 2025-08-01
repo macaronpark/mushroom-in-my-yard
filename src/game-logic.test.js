@@ -2,7 +2,68 @@ import { describe, expect, it, vi } from 'vitest';
 import { GameLogic } from './game-logic';
 import { EventBus } from './event-bus';
 import { CONFIG } from './config';
+import { GameState } from './game-state';
 import { Mushroom } from './mushroom';
+
+describe('handleFieldClick', () => {
+  it('버섯이 없으면 새 버섯을 심는 이벤트를 트리거한다', () => {
+    const fieldID = 'field-1';
+    // TODO: 외부에서 수정할 수 없게하되 테스트는 가능하게 변경 필요
+    GameState.fields[fieldID].mushroomID = null;
+    const spyOnEventBus = vi.spyOn(EventBus, 'emit');
+
+    GameLogic.handleFieldClick({ fieldID });
+
+    expect(spyOnEventBus).toHaveBeenCalledWith(
+      expect.objectContaining({
+        from: CONFIG.MODULE_ID.GAME_LOGIC,
+        e: CONFIG.EVENT_ID.SET_NEW_MUSHROOM,
+      }),
+    );
+  });
+
+  it('버섯이 성장 중이라면 아무런 이벤트를 트리거하지 않는다', () => {
+    const fieldID = 'field-1';
+    const mushroom = new Mushroom({
+      fieldID,
+      mushroomType: CONFIG.MUSHROOM.RED_CAP,
+    });
+
+    // TODO: 외부에서 수정할 수 없게하되 테스트는 가능하게 변경 필요
+    GameState.fields[fieldID].mushroomID = mushroom.id;
+    GameState.mushrooms = { mushroomID: mushroom };
+
+    const spyOnEventBus = vi.spyOn(EventBus, 'emit');
+
+    GameLogic.handleFieldClick({ fieldID });
+
+    expect(spyOnEventBus).not.toHaveBeenCalled();
+  });
+
+  it('버섯이 성숙 단계라면 수확 이벤트를 트리거한다', () => {
+    const fieldID = 'field-1';
+    const mushroom = new Mushroom({
+      fieldID,
+      mushroomType: CONFIG.MUSHROOM.RED_CAP,
+    });
+
+    // TODO: 외부에서 수정할 수 없게하되 테스트는 가능하게 변경 필요
+    mushroom.growthStage = CONFIG.GROWTH_STAGE.MATURE;
+    GameState.fields[fieldID].mushroomID = mushroom.id;
+    GameState.mushrooms = { mushroomID: mushroom };
+
+    const spyOnEventBus = vi.spyOn(EventBus, 'emit');
+
+    GameLogic.handleFieldClick({ fieldID });
+
+    expect(spyOnEventBus).toHaveBeenCalledWith(
+      expect.objectContaining({
+        from: CONFIG.MODULE_ID.GAME_LOGIC,
+        e: CONFIG.EVENT_ID.HARVEST_MUSHROOM,
+      }),
+    );
+  });
+});
 
 describe('shouldGrow', () => {
   const MOCK_START_TIME = 1000000;
