@@ -16,15 +16,33 @@ export const GameLogic = {
   bindEvents() {
     EventBus.on({
       from: FROM,
-      e: CONFIG.EVENT_ID.FIELD_CLICKED,
-      callback: this.plantNewMushroom,
+      e: CONFIG.EVENT_ID.GAME_LOGIC.FIELD_CLICKED,
+      callback: ({ fieldID }) => this.handleFieldClick({ fieldID }),
     });
+  },
+
+  handleFieldClick({ fieldID }) {
+    const { mushroomID } = GameState.getField({ fieldID });
+
+    if (!mushroomID) {
+      this.plantNewMushroom({ fieldID });
+      return;
+    }
+
+    const mushroom = GameState.getMushroom({ mushroomID });
+    if (mushroom.growthStage !== CONFIG.GROWTH_STAGE.MATURE) {
+      return;
+    }
+
+    this.harvestMushroom({ fieldID, mushroomID: mushroom.id });
   },
 
   growthCheck() {
     const mushroomList = GameState.getMushroomList();
 
     mushroomList.forEach((mushroom) => {
+      if (!mushroom) return;
+
       const { fieldID, plantedAt, growthTime, growthStage } = mushroom;
       const now = Date.now();
 
@@ -57,7 +75,7 @@ export const GameLogic = {
   growTo({ mushroomID, nextGrowthStage }) {
     EventBus.emit({
       from: CONFIG.MODULE_ID.GAME_LOGIC,
-      e: CONFIG.EVENT_ID.UPDATE_MUSHROOM_GROWTH_STAGE,
+      e: CONFIG.EVENT_ID.GAME_STATE.UPDATE_MUSHROOM_GROWTH_STAGE,
       data: { mushroomID, nextGrowthStage },
     });
   },
@@ -70,8 +88,16 @@ export const GameLogic = {
 
     EventBus.emit({
       from: FROM,
-      e: CONFIG.EVENT_ID.SET_NEW_MUSHROOM,
+      e: CONFIG.EVENT_ID.GAME_STATE.SET_NEW_MUSHROOM,
       data: { ...newMushroom },
+    });
+  },
+
+  harvestMushroom({ fieldID, mushroomID }) {
+    EventBus.emit({
+      from: FROM,
+      e: CONFIG.EVENT_ID.GAME_STATE.HARVEST_MUSHROOM,
+      data: { fieldID, mushroomID },
     });
   },
 };

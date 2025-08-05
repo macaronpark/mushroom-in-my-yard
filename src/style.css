@@ -39,14 +39,6 @@ div {
   position: relative;
 }
 
-.field--empty {
-  cursor: pointer;
-}
-
-.field--planted {
-  cursor: not-allowed;
-}
-
 .mushroom {
   width: 140px;
   height: 100px;

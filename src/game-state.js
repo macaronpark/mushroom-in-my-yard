@@ -16,7 +16,7 @@ export const GameState = {
   bindEvent() {
     EventBus.on({
       from: FROM,
-      e: CONFIG.EVENT_ID.SET_NEW_MUSHROOM,
+      e: CONFIG.EVENT_ID.GAME_STATE.SET_NEW_MUSHROOM,
       callback: (props) => {
         this.addNewMushroom(props);
       },
@@ -24,13 +24,29 @@ export const GameState = {
 
     EventBus.on({
       from: FROM,
-      e: CONFIG.EVENT_ID.UPDATE_MUSHROOM_GROWTH_STAGE,
+      e: CONFIG.EVENT_ID.GAME_STATE.UPDATE_MUSHROOM_GROWTH_STAGE,
       callback: ({ mushroomID, nextGrowthStage }) =>
         this.updateMushroomGrowthStage({
           mushroomID,
           nextGrowthStage,
         }),
     });
+
+    EventBus.on({
+      from: FROM,
+      e: CONFIG.EVENT_ID.GAME_STATE.HARVEST_MUSHROOM,
+      callback: ({ fieldID, mushroomID }) =>
+        this.deleteMushroom({
+          fieldID,
+          mushroomID,
+        }),
+    });
+  },
+
+  getField({ fieldID }) {
+    const field = this.fields[fieldID];
+
+    return { ...field };
   },
 
   getMushroomList() {
@@ -68,7 +84,7 @@ export const GameState = {
 
     EventBus.emit({
       from: FROM,
-      e: CONFIG.EVENT_ID.RENDER_MUSHROOM,
+      e: CONFIG.EVENT_ID.UI_MANAGER.PLANT_NEW_MUSHROOM,
       data: { mushroomID: props.id },
     });
   },
@@ -86,8 +102,31 @@ export const GameState = {
 
     EventBus.emit({
       from: FROM,
-      e: CONFIG.EVENT_ID.RENDER_MUSHROOM,
+      e: CONFIG.EVENT_ID.UI_MANAGER.UPDATE_MUSHROOM,
       data: { mushroomID },
+    });
+  },
+
+  deleteMushroom({ fieldID, mushroomID }) {
+    const prevField = this.fields[fieldID];
+
+    this.fields = {
+      ...this.fields,
+      [fieldID]: {
+        ...prevField,
+        mushroomID: null,
+      },
+    };
+
+    this.mushrooms = {
+      ...this.mushrooms,
+      [mushroomID]: null,
+    };
+
+    EventBus.emit({
+      from: FROM,
+      e: CONFIG.EVENT_ID.UI_MANAGER.HARVEST_MUSHROOM,
+      data: { fieldID },
     });
   },
 };
