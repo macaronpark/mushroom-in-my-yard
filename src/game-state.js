@@ -50,7 +50,9 @@ export const GameState = {
   },
 
   getMushroomList() {
-    const mushroomList = Object.values(this.mushrooms);
+    const mushroomList = Object.values(this.mushrooms).filter(
+      (mushroom) => mushroom,
+    );
 
     return [...mushroomList];
   },

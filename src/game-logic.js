@@ -41,8 +41,6 @@ export const GameLogic = {
     const mushroomList = GameState.getMushroomList();
 
     mushroomList.forEach((mushroom) => {
-      if (!mushroom) return;
-
       const { fieldID, plantedAt, growthTime, growthStage } = mushroom;
       const now = Date.now();
 
