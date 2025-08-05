@@ -5,25 +5,31 @@ import { CONFIG } from './config';
 import { GameState } from './game-state';
 import { Mushroom } from './mushroom';
 
+let spyOnEmit;
+let spyOnGetField;
+let spyOnGetMushroom;
+
+beforeEach(() => {
+  spyOnEmit = vi.spyOn(EventBus, 'emit');
+  spyOnGetField = vi.spyOn(GameState, 'getField');
+  spyOnGetMushroom = vi.spyOn(GameState, 'getMushroom');
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
+});
+
 describe('handleFieldClick', () => {
-  let spyOnEventBus;
-
-  beforeEach(() => {
-    spyOnEventBus = vi.spyOn(EventBus, 'emit');
-  });
-
-  afterEach(() => {
-    spyOnEventBus.mockRestore();
+  const fieldID = 'field-1';
+  const mushroom = new Mushroom({
+    fieldID,
+    mushroomType: CONFIG.MUSHROOM.RED_CAP.type,
   });
 
   it('버섯이 없으면 새 버섯을 심는 이벤트를 발생시킨다', () => {
-    const fieldID = 'field-1';
-    // TODO: 외부에서 수정할 수 없게하되 테스트는 가능하게 변경 필요
-    GameState.fields[fieldID].mushroomID = null;
-
     GameLogic.handleFieldClick({ fieldID });
 
-    expect(spyOnEventBus).toHaveBeenCalledWith(
+    expect(spyOnEmit).toHaveBeenCalledWith(
       expect.objectContaining({
         from: CONFIG.MODULE_ID.GAME_LOGIC,
         e: CONFIG.EVENT_ID.GAME_STATE.SET_NEW_MUSHROOM,
@@ -32,19 +38,18 @@ describe('handleFieldClick', () => {
   });
 
   it('버섯이 성장 중이라면 수확 이벤트를 발생시키지 않는다', () => {
-    const fieldID = 'field-1';
-    const mushroom = new Mushroom({
+    spyOnGetField.mockReturnValue({
       fieldID,
-      mushroomType: CONFIG.MUSHROOM.RED_CAP.type,
+      mushroomID: mushroom.id,
     });
-
-    // TODO: 외부에서 수정할 수 없게하되 테스트는 가능하게 변경 필요
-    GameState.fields[fieldID].mushroomID = mushroom.id;
-    GameState.mushrooms = { mushroomID: mushroom };
+    spyOnGetMushroom.mockReturnValue({
+      ...mushroom,
+      growthStage: CONFIG.GROWTH_STAGE.MYCELIUM,
+    });
 
     GameLogic.handleFieldClick({ fieldID });
 
-    expect(spyOnEventBus).not.toHaveBeenCalledWith(
+    expect(spyOnEmit).not.toHaveBeenCalledWith(
       expect.objectContaining({
         from: CONFIG.MODULE_ID.GAME_LOGIC,
         e: CONFIG.EVENT_ID.GAME_STATE.HARVEST_MUSHROOM,
@@ -53,24 +58,18 @@ describe('handleFieldClick', () => {
   });
 
   it('버섯이 성숙 단계라면 수확 이벤트를 발생시킨다', () => {
-    const fieldID = 'field-1';
-    const mushroom = new Mushroom({
+    spyOnGetField.mockReturnValue({
       fieldID,
-      mushroomType: CONFIG.MUSHROOM.RED_CAP.type,
+      mushroomID: mushroom.id,
     });
-
-    // TODO: 외부에서 수정할 수 없게하되 테스트는 가능하게 변경 필요
-    GameState.fields[fieldID].mushroomID = mushroom.id;
-    GameState.mushrooms = {
-      [mushroom.id]: {
-        ...mushroom,
-        growthStage: CONFIG.GROWTH_STAGE.MATURE,
-      },
-    };
+    spyOnGetMushroom.mockReturnValue({
+      ...mushroom,
+      growthStage: CONFIG.GROWTH_STAGE.MATURE,
+    });
 
     GameLogic.handleFieldClick({ fieldID });
 
-    expect(spyOnEventBus).toHaveBeenCalledWith(
+    expect(spyOnEmit).toHaveBeenCalledWith(
       expect.objectContaining({
         from: CONFIG.MODULE_ID.GAME_LOGIC,
         e: CONFIG.EVENT_ID.GAME_STATE.HARVEST_MUSHROOM,
@@ -135,11 +134,10 @@ describe('shouldGrow', () => {
 it('growTo: 버섯 성장 이벤트를 트리거해야 한다', () => {
   const mushroomID = 'field-1_redcap';
   const nextGrowthStage = CONFIG.GROWTH_STAGE.FRUITING;
-  const spyOnEventBus = vi.spyOn(EventBus, 'emit');
 
   GameLogic.growTo({ mushroomID, nextGrowthStage });
 
-  expect(spyOnEventBus).toHaveBeenCalledWith({
+  expect(spyOnEmit).toHaveBeenCalledWith({
     from: CONFIG.MODULE_ID.GAME_LOGIC,
     e: CONFIG.EVENT_ID.GAME_STATE.UPDATE_MUSHROOM_GROWTH_STAGE,
     data: {
@@ -147,17 +145,14 @@ it('growTo: 버섯 성장 이벤트를 트리거해야 한다', () => {
       nextGrowthStage,
     },
   });
-
-  spyOnEventBus.mockRestore();
 });
 
 it('plantNewMushroom: 새로운 버섯을 심는 이벤트를 트리거해야 한다', () => {
   const fieldID = 'field-1';
-  const spyOnEventBus = vi.spyOn(EventBus, 'emit');
 
   GameLogic.plantNewMushroom({ fieldID });
 
-  expect(spyOnEventBus).toHaveBeenCalledWith({
+  expect(spyOnEmit).toHaveBeenCalledWith({
     from: CONFIG.MODULE_ID.GAME_LOGIC,
     e: CONFIG.EVENT_ID.GAME_STATE.SET_NEW_MUSHROOM,
     data: {
@@ -174,6 +169,4 @@ it('plantNewMushroom: 새로운 버섯을 심는 이벤트를 트리거해야 �
       type: expect.any(String),
     },
   });
-
-  spyOnEventBus.mockRestore();
 });
