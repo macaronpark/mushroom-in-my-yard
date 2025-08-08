@@ -49,7 +49,7 @@ describe('deleteMushroom', () => {
     expect(spyOnEmit).toHaveBeenCalledWith(
       expect.objectContaining({
         from: CONFIG.MODULE_ID.GAME_STATE,
-        e: CONFIG.EVENT_ID.UI_MANAGER.HARVEST_MUSHROOM,
+        e: CONFIG.EVENT_ID.UI_MANAGER.RENDER,
       }),
     );
   });
