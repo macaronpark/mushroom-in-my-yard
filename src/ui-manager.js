@@ -5,10 +5,11 @@ import { Logger } from './logger';
 
 export const UIManager = {
   init() {
-    this.bindEvents();
+    this.bindClickEvents();
+    this.bindEventBus();
   },
 
-  bindEvents() {
+  bindClickEvents() {
     const yard = document.getElementById('game-yard');
     yard.addEventListener('click', (event) => {
       const target = event.target.closest('button');
@@ -17,39 +18,43 @@ export const UIManager = {
       const isFieldClicked = target.id.includes('field');
       if (!isFieldClicked) return;
 
-      const isFieldEmpty = target.classList.contains('field--empty');
-      if (!isFieldEmpty) return;
-
       this.handleFieldClick({ fieldID: target.id });
     });
+  },
 
-    EventBus.on({
-      from: FROM,
-      e: CONFIG.EVENT_ID.RENDER_MUSHROOM,
-      callback: ({ mushroomID }) => this.renderMushroom({ mushroomID }),
-    });
+  bindEventBus() {
+    const eventList = [
+      {
+        e: CONFIG.EVENT_ID.UI_MANAGER.PLANT_NEW_MUSHROOM,
+        callback: ({ mushroomID }) => this.plantNewMushroom({ mushroomID }),
+      },
+      {
+        e: CONFIG.EVENT_ID.UI_MANAGER.UPDATE_MUSHROOM,
+        callback: ({ mushroomID }) => this.updateMushroom({ mushroomID }),
+      },
+      {
+        e: CONFIG.EVENT_ID.UI_MANAGER.HARVEST_MUSHROOM,
+        callback: ({ fieldID }) => this.harvestMushroom({ fieldID }),
+      },
+    ];
+
+    eventList.forEach(({ e, callback }) =>
+      EventBus.on({ from: FROM, e, callback }),
+    );
   },
 
   handleFieldClick({ fieldID }) {
     EventBus.emit({
       from: FROM,
-      e: CONFIG.EVENT_ID.FIELD_CLICKED,
+      e: CONFIG.EVENT_ID.GAME_LOGIC.FIELD_CLICKED,
       data: { fieldID },
     });
   },
 
-  renderMushroom({ mushroomID }) {
-    const isExist = document.getElementById(mushroomID);
-
-    if (!isExist) {
-      this.plantMushroom({ mushroomID });
-    }
-
-    this.updateMushroom({ mushroomID });
-  },
-
-  plantMushroom({ mushroomID }) {
-    const { fieldID, id } = GameState.getMushroom({ mushroomID });
+  plantNewMushroom({ mushroomID }) {
+    const { fieldID, id, name, growthStage } = GameState.getMushroom({
+      mushroomID,
+    });
     const targetField = document.getElementById(fieldID);
 
     if (!targetField) {
@@ -60,17 +65,17 @@ export const UIManager = {
       return;
     }
 
-    targetField.classList.remove('field--empty');
-    targetField.classList.add('field--planted');
     targetField.innerHTML = '';
 
-    const mushroomElement = document.createElement('div');
-    mushroomElement.id = id;
-    mushroomElement.className = `mushroom`;
+    const mushroomEl = document.createElement('div');
+    mushroomEl.id = id;
+    mushroomEl.className = `mushroom`;
 
-    targetField.appendChild(mushroomElement);
+    const { backgroundColor } = MUSHROOM_STYLES[growthStage];
+    mushroomEl.style.backgroundColor = backgroundColor;
+    mushroomEl.textContent = name + '버섯_' + growthStage;
 
-    Logger.log({ from: FROM, msg: `🌱 plantMushroom: ${id}` });
+    targetField.appendChild(mushroomEl);
   },
 
   updateMushroom({ mushroomID }) {
@@ -89,12 +94,26 @@ export const UIManager = {
     mushroomEl.style.backgroundColor = backgroundColor;
     mushroomEl.textContent = name + '버섯_' + growthStage;
   },
+
+  harvestMushroom({ fieldID }) {
+    const targetField = document.getElementById(fieldID);
+
+    if (!targetField) {
+      Logger.error({
+        from: FROM,
+        msg: `❌ harvestMushroom: ${fieldID} not found`,
+      });
+      return;
+    }
+
+    targetField.innerHTML = '';
+  },
 };
 
 const FROM = CONFIG.MODULE_ID.UI_MANAGER;
 
-const MUSHROOM_STYLES = {
-  [CONFIG.GROWTH_STAGE.MYCELIUM]: { backgroundColor: 'lightGray' },
+export const MUSHROOM_STYLES = {
+  [CONFIG.GROWTH_STAGE.MYCELIUM]: { backgroundColor: 'lightgray' },
   [CONFIG.GROWTH_STAGE.FRUITING]: { backgroundColor: 'yellow' },
   [CONFIG.GROWTH_STAGE.MATURE]: { backgroundColor: 'red' },
 };

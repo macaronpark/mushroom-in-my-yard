@@ -37,14 +37,7 @@ div {
   background-color: tan;
   border: 1px solid black;
   position: relative;
-}
-
-.field--empty {
   cursor: pointer;
-}
-
-.field--planted {
-  cursor: not-allowed;
 }
 
 .mushroom {
@@ -54,5 +47,4 @@ div {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background-color: red;
 }
