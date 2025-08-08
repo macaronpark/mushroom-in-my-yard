@@ -50,9 +50,7 @@ export const GameState = {
   },
 
   getMushroomList() {
-    const mushroomList = Object.values(this.mushrooms).filter(
-      (mushroom) => mushroom,
-    );
+    const mushroomList = Object.values(this.mushrooms);
 
     return [...mushroomList];
   },
@@ -120,10 +118,8 @@ export const GameState = {
       },
     };
 
-    this.mushrooms = {
-      ...this.mushrooms,
-      [mushroomID]: null,
-    };
+    const { [mushroomID]: _, ...restMushrooms } = this.mushrooms;
+    this.mushrooms = restMushrooms;
 
     EventBus.emit({
       from: FROM,
