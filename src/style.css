@@ -37,6 +37,7 @@ div {
   background-color: tan;
   border: 1px solid black;
   position: relative;
+  cursor: pointer;
 }
 
 .mushroom {
