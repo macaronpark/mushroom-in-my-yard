@@ -38,7 +38,7 @@ describe('deleteMushroom', () => {
   it('버섯 정보를 제거한다', () => {
     GameState.deleteMushroom({ fieldID, mushroomID: mushroom.id });
 
-    expect(GameState.mushrooms[mushroom.id]).toBeNull();
+    expect(GameState.mushrooms[mushroom.id]).toBeUndefined();
   });
 
   it.todo('도감 해금 여부를 확인하고 필요 시 업데이트한다');
