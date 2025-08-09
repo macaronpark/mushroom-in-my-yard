@@ -1,5 +1,5 @@
 import { CONFIG } from './config.js';
-import { GameState } from './game-state.js';
+import GameState from './game-state.js';
 import { GameLogic } from './game-logic.js';
 import { UIManager } from './ui-manager.js';
 

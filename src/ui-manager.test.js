@@ -3,7 +3,7 @@ import { EventBus } from './event-bus';
 import { CONFIG } from './config';
 import { MUSHROOM_STYLES, UIManager } from './ui-manager';
 import { Mushroom } from './mushroom';
-import { GameState } from './game-state';
+import GameState from './game-state';
 
 const renderEl = () => {
   return {

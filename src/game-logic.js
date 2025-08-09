@@ -1,6 +1,6 @@
 import { CONFIG } from './config.js';
 import { EventBus } from './event-bus.js';
-import { GameState } from './game-state.js';
+import GameState from './game-state.js';
 import { Mushroom } from './mushroom.js';
 
 export const GameLogic = {
@@ -46,13 +46,16 @@ export const GameLogic = {
 
       if (!this.shouldGrow({ plantedAt, growthTime, growthStage, now })) return;
 
+      const nextGrowthStage = this.getNextGrowthStage({
+        current: growthStage,
+      });
+
+      if (!nextGrowthStage) return;
+
       this.growTo({
         fieldID,
         mushroomID: mushroom.id,
-        nextGrowthStage:
-          growthStage === CONFIG.GROWTH_STAGE.MYCELIUM
-            ? CONFIG.GROWTH_STAGE.FRUITING
-            : CONFIG.GROWTH_STAGE.MATURE,
+        nextGrowthStage,
       });
     });
   },
@@ -76,6 +79,21 @@ export const GameLogic = {
       e: CONFIG.EVENT_ID.GAME_STATE.UPDATE_MUSHROOM_GROWTH_STAGE,
       data: { mushroomID, nextGrowthStage },
     });
+  },
+
+  getNextGrowthStage({ current }) {
+    const { MYCELIUM, FRUITING, MATURE } = CONFIG.GROWTH_STAGE;
+
+    switch (current) {
+      case MYCELIUM:
+        return FRUITING;
+
+      case FRUITING:
+        return MATURE;
+
+      default:
+        return null;
+    }
   },
 
   plantNewMushroom({ fieldID }) {
