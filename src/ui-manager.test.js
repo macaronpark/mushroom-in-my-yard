@@ -1,9 +1,9 @@
 import { beforeEach, expect, it, vi } from 'vitest';
 import EventBus from './event-bus';
-import { CONFIG } from './config';
-import { MUSHROOM_STYLES, UIManager } from './ui-manager';
-import { Mushroom } from './mushroom';
 import GameState from './game-state';
+import UIManager, { MUSHROOM_STYLES } from './ui-manager';
+import { CONFIG } from './config';
+import { Mushroom } from './mushroom';
 
 const renderEl = () => {
   return {
