@@ -43,6 +43,14 @@ export const GameState = {
     });
   },
 
+  // Getters
+  getState() {
+    return {
+      fields: { ...this.fields },
+      mushrooms: { ...this.mushrooms },
+    };
+  },
+
   getField({ fieldID }) {
     const field = this.fields[fieldID];
 
@@ -61,6 +69,7 @@ export const GameState = {
     return { ...mushroom };
   },
 
+  // Setters
   addNewMushroom(props) {
     const { fieldID, id: mushroomID } = props;
     const prevField = this.fields[fieldID];
@@ -84,8 +93,7 @@ export const GameState = {
 
     EventBus.emit({
       from: FROM,
-      e: CONFIG.EVENT_ID.UI_MANAGER.PLANT_NEW_MUSHROOM,
-      data: { mushroomID: props.id },
+      e: CONFIG.EVENT_ID.UI_MANAGER.RENDER,
     });
   },
 
@@ -102,8 +110,7 @@ export const GameState = {
 
     EventBus.emit({
       from: FROM,
-      e: CONFIG.EVENT_ID.UI_MANAGER.UPDATE_MUSHROOM,
-      data: { mushroomID },
+      e: CONFIG.EVENT_ID.UI_MANAGER.RENDER,
     });
   },
 
@@ -123,8 +130,7 @@ export const GameState = {
 
     EventBus.emit({
       from: FROM,
-      e: CONFIG.EVENT_ID.UI_MANAGER.HARVEST_MUSHROOM,
-      data: { fieldID },
+      e: CONFIG.EVENT_ID.UI_MANAGER.RENDER,
     });
   },
 };
