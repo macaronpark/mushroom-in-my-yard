@@ -1,5 +1,5 @@
 import { CONFIG } from './config';
-import { EventBus } from './event-bus';
+import EventBus from './event-bus';
 
 export const createGameState = () => {
   let fields = {

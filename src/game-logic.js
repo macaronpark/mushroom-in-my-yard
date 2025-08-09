@@ -1,5 +1,5 @@
 import { CONFIG } from './config.js';
-import { EventBus } from './event-bus.js';
+import EventBus from './event-bus.js';
 import GameState from './game-state.js';
 import { Mushroom } from './mushroom.js';
 

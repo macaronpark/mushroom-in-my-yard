@@ -1,5 +1,5 @@
 import { beforeEach, expect, it, vi } from 'vitest';
-import { EventBus } from './event-bus';
+import EventBus from './event-bus';
 import { CONFIG } from './config';
 import { MUSHROOM_STYLES, UIManager } from './ui-manager';
 import { Mushroom } from './mushroom';

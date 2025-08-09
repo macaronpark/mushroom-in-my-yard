@@ -1,5 +1,5 @@
 import { CONFIG } from './config';
-import { EventBus } from './event-bus';
+import EventBus from './event-bus';
 import GameState from './game-state';
 
 export const UIManager = {
