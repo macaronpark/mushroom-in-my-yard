@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import CONFIG from './config';
 import EventBus from './event-bus';
 import Mushroom from './mushroom';
-import { CONFIG } from './config';
 import { createGameState } from './game-state';
 
 let GameState;

@@ -1,4 +1,4 @@
-import { CONFIG } from './config';
+import CONFIG from './config';
 import EventBus from './event-bus';
 import GameState from './game-state';
 
