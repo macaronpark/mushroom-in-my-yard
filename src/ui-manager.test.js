@@ -65,7 +65,7 @@ it('밭에 새로운 버섯을 추가한다', () => {
   expect(className).toBe('mushroom');
   const { backgroundColor } = MUSHROOM_STYLES[mushroom.growthStage];
   expect(style.backgroundColor).toBe(backgroundColor);
-  expect(textContent).contain(mushroom.name + '버섯_' + mushroom.growthStage);
+  expect(textContent).toContain(mushroom.name + '버섯_' + mushroom.growthStage);
 });
 
 it('버섯의 변경사항을 반영해 업데이트한다', () => {
@@ -97,7 +97,7 @@ it('버섯의 변경사항을 반영해 업데이트한다', () => {
   const mushroomEl = document.getElementById(updatedMushroom.id);
   const { backgroundColor } = MUSHROOM_STYLES[updatedMushroom.growthStage];
   expect(mushroomEl.style.backgroundColor).toBe(backgroundColor);
-  expect(mushroomEl.textContent).contain(
+  expect(mushroomEl.textContent).toContain(
     updatedMushroom.name + '버섯_' + updatedMushroom.growthStage,
   );
 });
