@@ -3,7 +3,7 @@ import EventBus from './event-bus.js';
 import GameState from './game-state.js';
 import { Mushroom } from './mushroom.js';
 
-export const GameLogic = {
+const GameLogic = {
   init() {
     this.setGameLoop();
     this.bindEvents();
@@ -117,5 +117,7 @@ export const GameLogic = {
     });
   },
 };
+
+export default GameLogic;
 
 const FROM = CONFIG.MODULE_ID.GAME_LOGIC;
