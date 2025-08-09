@@ -3,7 +3,7 @@
  * 이 객체는 읽기 전용으로 사용되어야 함.
  * @readonly
  */
-export const CONFIG = {
+const CONFIG = {
   /**
    * 게임의 해상도 설정.
    * @property {number} WIDTH - 게임 화면의 너비 (px)
@@ -124,3 +124,5 @@ export const CONFIG = {
     mushroom: ({ id }) => `[Mushroom: ${id}]`,
   },
 };
+
+export default CONFIG;

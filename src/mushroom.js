@@ -1,6 +1,6 @@
-import { CONFIG } from './config';
+import CONFIG from './config';
 
-export class Mushroom {
+export default class Mushroom {
   constructor({ fieldID, mushroomType }) {
     const { id, type, name, rarity, growthTime } =
       CONFIG.MUSHROOM[mushroomType];
