@@ -1,7 +1,7 @@
 import { CONFIG } from './config.js';
 import EventBus from './event-bus.js';
 import GameState from './game-state.js';
-import { Mushroom } from './mushroom.js';
+import Mushroom from './mushroom.js';
 
 const GameLogic = {
   init() {
