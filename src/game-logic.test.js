@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { GameLogic } from './game-logic';
-import { EventBus } from './event-bus';
-import { CONFIG } from './config';
-import { GameState } from './game-state';
-import { Mushroom } from './mushroom';
+import CONFIG from './config';
+import EventBus from './event-bus';
+import GameLogic from './game-logic';
+import GameState from './game-state';
+import Mushroom from './mushroom';
 
 let spyOnEmit;
 let spyOnGetField;

@@ -1,8 +1,8 @@
-import { CONFIG } from './config';
-import { EventBus } from './event-bus';
-import { GameState } from './game-state';
+import CONFIG from './config';
+import EventBus from './event-bus';
+import GameState from './game-state';
 
-export const UIManager = {
+const UIManager = {
   init() {
     this.bindEvents();
   },
@@ -69,6 +69,8 @@ export const UIManager = {
     `;
   },
 };
+
+export default UIManager;
 
 const FROM = CONFIG.MODULE_ID.UI_MANAGER;
 
