@@ -24,7 +24,6 @@ function createGameLogic() {
       setGameLoop();
       bindEvents();
     },
-    getNextGrowthStage,
   };
 }
 
