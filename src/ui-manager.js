@@ -52,7 +52,7 @@ export function render() {
       const mushroom = mushrooms[field.mushroomID];
 
       return `
-          <button id=${field.id} class="field">
+          <button id="${field.id}" class="field">
             ${mushroom ? createMushroomHTML({ mushroom }) : ''}
           </button>
         `;
