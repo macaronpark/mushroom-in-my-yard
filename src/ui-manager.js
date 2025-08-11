@@ -2,12 +2,11 @@ import CONFIG from './config';
 import EventBus from './event-bus';
 import GameState from './game-state';
 
-const UIManager = {
-  init() {
-    this.bindEvents();
-  },
+const UIManager = createUIManager();
+export default UIManager;
 
-  bindEvents() {
+function createUIManager() {
+  const bindEvents = () => {
     // Click event
     const yard = document.getElementById('game-yard');
     yard.addEventListener('click', (event) => {
@@ -17,60 +16,64 @@ const UIManager = {
       const isFieldClicked = target.id.includes('field');
       if (!isFieldClicked) return;
 
-      this.handleFieldClick({ fieldID: target.id });
+      handleFieldClick({ fieldID: target.id });
     });
 
     // EventBus
     EventBus.on({
       from: FROM,
       e: CONFIG.EVENT_ID.UI_MANAGER.RENDER,
-      callback: () => this.render(),
+      callback: () => render(),
     });
-  },
+  };
 
-  handleFieldClick({ fieldID }) {
+  const handleFieldClick = ({ fieldID }) => {
     EventBus.emit({
       from: FROM,
       e: CONFIG.EVENT_ID.GAME_LOGIC.FIELD_CLICKED,
       data: { fieldID },
     });
-  },
+  };
 
-  render() {
-    const yardEl = document.getElementById('game-yard');
+  return {
+    init() {
+      bindEvents();
+    },
+  };
+}
 
-    const { fields, mushrooms } = GameState.getState();
+export function render() {
+  const yardEl = document.getElementById('game-yard');
 
-    const newHTML = Object.values(fields)
-      .map((field) => {
-        const mushroom = mushrooms[field.mushroomID];
+  const { fields, mushrooms } = GameState.getState();
 
-        return `
+  const newHTML = Object.values(fields)
+    .map((field) => {
+      const mushroom = mushrooms[field.mushroomID];
+
+      return `
           <button id=${field.id} class="field">
-            ${mushroom ? this.createMushroomHTML({ mushroom }) : ''}
+            ${mushroom ? createMushroomHTML({ mushroom }) : ''}
           </button>
         `;
-      })
-      .join('');
+    })
+    .join('');
 
-    if (yardEl.innerHTML !== newHTML) {
-      yardEl.innerHTML = newHTML;
-    }
-  },
+  if (yardEl.innerHTML !== newHTML) {
+    yardEl.innerHTML = newHTML;
+  }
+}
 
-  createMushroomHTML({ mushroom }) {
-    const { id, name, growthStage } = mushroom;
-    const { backgroundColor } = MUSHROOM_STYLES[growthStage];
+export function createMushroomHTML({ mushroom }) {
+  const { id, name, growthStage } = mushroom;
+  const { backgroundColor } = MUSHROOM_STYLES[growthStage];
 
-    return `
-      <div id=${id} class="mushroom" style="background-color: ${backgroundColor}">
+  return `
+      <div id="${id}" class="mushroom" style="background-color: ${backgroundColor}">
         ${name + '버섯_' + growthStage} 
       </div>
     `;
-  },
-};
-
-export default UIManager;
+}
 
 const FROM = CONFIG.MODULE_ID.UI_MANAGER;
 
