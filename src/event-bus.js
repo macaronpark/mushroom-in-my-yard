@@ -1,6 +1,9 @@
 import { Logger } from './logger.js';
 
-export const createEventBus = () => {
+const EventBus = createEventBus();
+export default EventBus;
+
+export function createEventBus() {
   let events = {};
 
   return {
@@ -51,7 +54,4 @@ export const createEventBus = () => {
       return { ...events };
     },
   };
-};
-
-const EventBus = createEventBus();
-export default EventBus;
+}

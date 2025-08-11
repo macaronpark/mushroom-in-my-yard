@@ -1,7 +1,10 @@
 import CONFIG from './config';
 import EventBus from './event-bus';
 
-export const createGameState = () => {
+const GameState = createGameState();
+export default GameState;
+
+export function createGameState() {
   let fields = {
     'field-1': { id: 'field-1', mushroomID: null },
     'field-2': { id: 'field-2', mushroomID: null },
@@ -121,9 +124,6 @@ export const createGameState = () => {
       return { ...mushroom };
     },
   };
-};
-
-const GameState = createGameState();
-export default GameState;
+}
 
 const FROM = CONFIG.MODULE_ID.GAME_STATE;
