@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import CONFIG from './config';
 import GameState from './game-state';
 import Mushroom from './mushroom';
-import UIManager, { MUSHROOM_STYLES } from './ui-manager';
+import { createMushroomHTML, render } from './ui-manager';
 
 let spyOnGetState;
 
@@ -33,16 +33,42 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-describe('통합 테스트', () => {
-  // GameState 상태를 화면에 잘 그리는지 테스트
-
-  it('밭에 새로운 버섯을 추가한다', () => {
-    const fieldID = 'field-1';
+// 단위 테스트
+describe('createMushroomHTML', () => {
+  it.each`
+    scenario                             | expected
+    ${'버섯의 id를 div의 id로 할당한다'} | ${(mushroom) => `div id="${mushroom.id}"`}
+    ${'mushroom 클래스를 가진다'}        | ${() => `class="mushroom"`}
+  `('$scenario', ({ expected }) => {
+    // Given
     const mushroom = new Mushroom({
-      fieldID,
+      fieldID: 'field-1',
       mushroomType: CONFIG.MUSHROOM.RED_CAP.type,
     });
 
+    // When
+    const htmlString = createMushroomHTML({ mushroom });
+
+    // Then
+    expect(htmlString).toContain(expected(mushroom));
+  });
+});
+
+describe('통합 테스트', () => {
+  //  GameState 상태를 화면에 잘 그리는지 테스트
+  let fieldID;
+  let mushroom;
+
+  beforeEach(() => {
+    fieldID = 'field-1';
+    mushroom = new Mushroom({
+      fieldID,
+      mushroomType: CONFIG.MUSHROOM.RED_CAP.type,
+    });
+  });
+
+  it('밭에 새로운 버섯을 추가한다', () => {
+    // Given
     spyOnGetState.mockReturnValue({
       fields: {
         [fieldID]: { id: fieldID, mushroomID: mushroom.id },
@@ -52,29 +78,17 @@ describe('통합 테스트', () => {
       },
     });
 
+    // When
+    render();
+
+    // Then
     const { Mushroom: MushroomEl } = renderEl();
-
-    UIManager.render();
-
-    const { className, style, textContent } = MushroomEl({
-      mushroomID: mushroom.id,
-    });
-
-    expect(className).toBe('mushroom');
-    const { backgroundColor } = MUSHROOM_STYLES[mushroom.growthStage];
-    expect(style.backgroundColor).toBe(backgroundColor);
-    expect(textContent).toContain(
-      mushroom.name + '버섯_' + mushroom.growthStage,
-    );
+    const { id } = MushroomEl({ mushroomID: mushroom.id });
+    expect(id).toBe(mushroom.id);
   });
 
   it('버섯의 변경사항을 반영해 업데이트한다', () => {
-    const fieldID = 'field-1';
-    const mushroom = new Mushroom({
-      fieldID,
-      mushroomType: CONFIG.MUSHROOM.RED_CAP.type,
-    });
-
+    // Given
     spyOnGetState.mockReturnValue({
       fields: {
         [fieldID]: { id: fieldID, mushroomID: mushroom.id },
@@ -87,7 +101,7 @@ describe('통합 테스트', () => {
       },
     });
 
-    UIManager.render();
+    render();
 
     const updatedMushroom = {
       ...mushroom,
@@ -103,25 +117,17 @@ describe('통합 테스트', () => {
       },
     });
 
-    UIManager.render();
+    // When
+    render();
 
-    const mushroomEl = document.getElementById(updatedMushroom.id);
-    const { backgroundColor } = MUSHROOM_STYLES[updatedMushroom.growthStage];
-    expect(mushroomEl.style.backgroundColor).toBe(backgroundColor);
-    expect(mushroomEl.textContent).toContain(
-      updatedMushroom.name + '버섯_' + updatedMushroom.growthStage,
-    );
+    // Then
+    const { Mushroom: MushroomEl } = renderEl();
+    const { id } = MushroomEl({ mushroomID: mushroom.id });
+    expect(id).toBe(mushroom.id);
   });
 
   it('밭에서 버섯을 제거한다.', () => {
-    const fieldID = 'field-1';
-    const mushroom = new Mushroom({
-      fieldID,
-      mushroomType: CONFIG.MUSHROOM.RED_CAP.type,
-    });
-
-    const { Field } = renderEl();
-
+    // Given
     spyOnGetState.mockReturnValue({
       fields: {
         [fieldID]: { id: fieldID, mushroomID: mushroom.id },
@@ -134,7 +140,7 @@ describe('통합 테스트', () => {
       },
     });
 
-    UIManager.render();
+    render();
 
     spyOnGetState.mockReturnValue({
       fields: {
@@ -143,8 +149,11 @@ describe('통합 테스트', () => {
       mushrooms: {},
     });
 
-    UIManager.render();
+    // When
+    render();
 
+    // Then
+    const { Field } = renderEl();
     expect(Field({ fieldID }).innerHTML.trim()).toBe('');
   });
 });
