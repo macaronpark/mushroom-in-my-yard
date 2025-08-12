@@ -19,10 +19,12 @@ beforeEach(() => {
   document.body.innerHTML = `
     <div id="app-container">
       <div class="game">
-        <div id="game-yard" class="yard">
-          <button id="field-1" class="field"></button>
-          <button id="field-2" class="field"></button>
-          <button id="field-3" class="field"></button>
+        <div class="outside">
+          <div id="yard" class="yard">
+            <button id="field-1" class="field"></button>
+            <button id="field-2" class="field"></button>
+            <button id="field-3" class="field"></button>
+          </div>
         </div>
       </div>
     </div>
