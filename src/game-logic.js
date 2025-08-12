@@ -138,7 +138,7 @@ export function getRandomMushroomType({
   const maxNum = cumulativeWeights[cumulativeWeights.length - 1];
   const randomNum = rng() * maxNum;
 
-  for (const i in cumulativeWeights) {
+  for (let i = 0; i < cumulativeWeights.length; i++) {
     if (randomNum < cumulativeWeights[i]) {
       return types[i];
     }
