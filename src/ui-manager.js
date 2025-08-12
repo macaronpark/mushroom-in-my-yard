@@ -57,25 +57,19 @@ function createUIManager() {
 }
 
 export function render() {
-  const yardEl = document.getElementById('game-yard');
-
   const { fields, mushrooms } = GameState.getState();
 
-  const newHTML = Object.values(fields)
-    .map((field) => {
+  Object.values(fields).forEach((field) => {
     const mushroom = mushrooms[field.mushroomID];
 
-      return `
-          <button id="${field.id}" class="field">
-            ${mushroom ? createMushroomHTML({ mushroom }) : ''}
-          </button>
-        `;
-    })
-    .join('');
+    const fieldEl = document.getElementById(field.id);
+    const prevHTML = fieldEl.innerHTML;
+    const newHTML = mushroom ? createMushroomHTML({ mushroom }) : '';
 
-  if (yardEl.innerHTML !== newHTML) {
-    yardEl.innerHTML = newHTML;
-  }
+    if (prevHTML.trim() === newHTML.trim()) return;
+
+    fieldEl.innerHTML = newHTML;
+  });
 }
 
 export function createMushroomHTML({ mushroom }) {
