@@ -9,6 +9,7 @@ import {
   growTo,
   plantNewMushroom,
   harvestMushroom,
+  getRandomMushroomType,
 } from './game-logic';
 import GameState from './game-state';
 import Mushroom from './mushroom';
@@ -264,5 +265,33 @@ it('harvestMushroom: 버섯을 수확하는 이벤트를 발생시킨다', () =>
       fieldID,
       mushroomID,
     },
+  });
+});
+
+describe('getRandomMushroomType', () => {
+  const TEST_MUSHROOM_CONFIG = {
+    'TEST-1': { type: 'TEST-1', rarity: 10 },
+    'TEST-2': { type: 'TEST-2', rarity: 8 },
+    'TEST-3': { type: 'TEST-3', rarity: 5 }, // 총합 23
+  };
+
+  // 10/23 = 0.43, 18/23 = 0.78
+  it.each`
+    rngReturnValue | expected
+    ${0}           | ${'TEST-1'}
+    ${0.43}        | ${'TEST-1'}
+    ${0.44}        | ${'TEST-2'}
+    ${0.78}        | ${'TEST-2'}
+    ${0.79}        | ${'TEST-3'}
+    ${0.999}       | ${'TEST-3'}
+  `('$rngReturnValue => $expected', ({ rngReturnValue, expected }) => {
+    // When
+    const randomMushroomType = getRandomMushroomType({
+      mushroomConfig: TEST_MUSHROOM_CONFIG,
+      rng: () => rngReturnValue,
+    });
+
+    // Then
+    expect(randomMushroomType).toBe(expected);
   });
 });
