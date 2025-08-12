@@ -111,7 +111,7 @@ export function growTo({ mushroomID, nextGrowthStage }) {
 export function plantNewMushroom({ fieldID }) {
   const newMushroom = new Mushroom({
     fieldID,
-    mushroomType: CONFIG.MUSHROOM.RED_CAP.type,
+    mushroomType: getRandomMushroomType(),
   });
 
   EventBus.emit({
@@ -119,6 +119,30 @@ export function plantNewMushroom({ fieldID }) {
     e: CONFIG.EVENT_ID.GAME_STATE.SET_NEW_MUSHROOM,
     data: { ...newMushroom },
   });
+}
+
+export function getRandomMushroomType({
+  mushroomConfig = CONFIG.MUSHROOM,
+  rng = Math.random,
+} = {}) {
+  const types = Object.keys(mushroomConfig);
+  const weights = types.map((type) => mushroomConfig[type].rarity);
+
+  const cumulativeWeights = weights.reduce((acc, cur, i) => {
+    const value = i === 0 ? cur : acc[i - 1] + cur;
+    acc.push(value);
+
+    return acc;
+  }, []);
+
+  const maxNum = cumulativeWeights[cumulativeWeights.length - 1];
+  const randomNum = rng() * maxNum;
+
+  for (let i = 0; i < cumulativeWeights.length; i++) {
+    if (randomNum < cumulativeWeights[i]) {
+      return types[i];
+    }
+  }
 }
 
 export function harvestMushroom({ fieldID, mushroomID }) {

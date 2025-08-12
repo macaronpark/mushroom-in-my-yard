@@ -51,7 +51,7 @@ const CONFIG = {
      * @property {string} name - 버섯의 일반 이름
      * @property {string} scientificName - 버섯의 학명
      * @property {string} description - 버섯에 대한 설명
-     * @property {number} rarity - 버섯의 희귀도 (0.0 ~ 1.0). 0에 가까울수록 흔하고 1에 가까울수록 희귀함.
+     * @property {number} rarity - 버섯의 희귀도 (0.1 - 10). 0에 가까울수록 희귀하다.
      * @property {object} growthTime - 버섯의 단계별 성장 시간 (ms)
      * @property {number} growthTime.myceliumToFruiting - 균사에서 자실체 형성 단계까지 걸리는 시간
      * @property {number} growthTime.fruitingToMature - 자실체에서 성숙 단계까지 걸리는 시간
@@ -68,7 +68,7 @@ const CONFIG = {
         섭취 시 구토, 환각, 착란 등의 증상을 유발한다. 고대 인도경전 리그베다에 나오는 환각제 ‘소마’의 후보로
         지목되기도 하며, 인류 문화와 신화 속에서도 자주 등장한다.
       `,
-      rarity: 0,
+      rarity: 10,
       growthTime: {
         myceliumToFruiting: 6000,
         fruitingToMature: 12000,
@@ -86,7 +86,25 @@ const CONFIG = {
         갓은 5~15cm로 편평하게 퍼지고, 줄기는 중심에서 벗어나 자란다. 
         능이버섯과 혼동될 수 있으나 독성 성분인 일루딘S로 인해 섭취 시 심한 복통, 구토, 설사를 유발한다. 
       `,
-      rarity: 0,
+      rarity: 8,
+      growthTime: {
+        myceliumToFruiting: 6000,
+        fruitingToMature: 12000,
+      },
+    },
+    BIRDS_NEST: {
+      id: 'birds-nest',
+      type: 'BIRDS_NEST',
+      name: '새둥지',
+      scientificName: 'Nidula niveo-tomentosa',
+      description: `
+        새둥지버섯은 주름버섯목 새둥지버섯과에 속하며, 이름처럼 작은 새의 둥지 모양을 하고 있다.
+        전 세계 숲속의 썩은 나무나 유기물이 풍부한 토양에서 자생한다.
+        둥지 모양의 자실체 안에는 '소피자'라는 작은 주머니들이 들어있는데, 빗방울이 떨어지면
+        이 주머니들이 튀어나가 주변으로 포자를 퍼뜨리는 독특한 번식 전략을 사용한다.
+        크기는 작지만 독특한 생김새 덕분에 숲 속에서 발견하는 재미가 있는 버섯이다.
+      `,
+      rarity: 5,
       growthTime: {
         myceliumToFruiting: 6000,
         fruitingToMature: 12000,
