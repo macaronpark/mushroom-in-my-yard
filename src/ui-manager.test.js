@@ -2,7 +2,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import CONFIG from './config';
 import GameState from './game-state';
 import Mushroom from './mushroom';
-import { createMushroomHTML, render } from './ui-manager';
+import {
+  createUIManager,
+  render,
+  createMushroomHTML,
+  getImageUrl,
+  getGrowthStageKo,
+} from './ui-manager';
+import assets from './assets';
 
 let spyOnGetState;
 
@@ -36,11 +43,33 @@ afterEach(() => {
 });
 
 // 단위 테스트
+describe('init', () => {
+  // Given
+  it.each`
+    selector       | expected
+    ${'.sun'}      | ${assets.sun}
+    ${'.cloud.c1'} | ${assets.cloud}
+    ${'.cloud.c2'} | ${assets.cloud}
+  `('$selector의 img src는 $expected', ({ selector, expected }) => {
+    // When
+    const UIManager = createUIManager();
+    UIManager.init();
+
+    // Then
+    document
+      .querySelectorAll(selector)
+      .forEach((el) => expect(el.src).toBe(expected));
+  });
+});
+
 describe('createMushroomHTML', () => {
   it.each`
-    scenario                             | expected
-    ${'버섯의 id를 div의 id로 할당한다'} | ${(mushroom) => `div id="${mushroom.id}"`}
-    ${'mushroom 클래스를 가진다'}        | ${() => `class="mushroom"`}
+    scenario                                   | expected
+    ${'버섯의 id를 div의 id로 할당한다'}       | ${(mushroom) => `div id="${mushroom.id}"`}
+    ${'mushroom 클래스를 가진다'}              | ${() => `class="mushroom"`}
+    ${'배경은 투명하다'}                       | ${() => 'background-color: transparent'}
+    ${'성숙 단계일 때 반짝임 효과를 부여한다'} | ${(mushroom) => (mushroom.growthStage === CONFIG.GROWTH_STAGE.MATURE ? `src="${assets.sparkle}"` : '')}
+    ${'버섯 이름과 단계를 보여준다'}           | ${(mushroom) => `<p>${mushroom.name}버섯 - ${getGrowthStageKo({ growthStage: mushroom.growthStage })}</p>`}
   `('$scenario', ({ expected }) => {
     // Given
     const mushroom = new Mushroom({
@@ -53,6 +82,47 @@ describe('createMushroomHTML', () => {
 
     // Then
     expect(htmlString).toContain(expected(mushroom));
+  });
+});
+
+describe('getImageUrl', () => {
+  // Given
+  it.each`
+    type                                   | growthStage                     | expected
+    ${CONFIG.MUSHROOM.RED_CAP.type}        | ${CONFIG.GROWTH_STAGE.MYCELIUM} | ${assets.mycelium}
+    ${CONFIG.MUSHROOM.RED_CAP.type}        | ${CONFIG.GROWTH_STAGE.FRUITING} | ${assets.redCapFruiting}
+    ${CONFIG.MUSHROOM.RED_CAP.type}        | ${CONFIG.GROWTH_STAGE.MATURE}   | ${assets.redCapMature}
+    ${CONFIG.MUSHROOM.JACK_O_LANTERN.type} | ${CONFIG.GROWTH_STAGE.MYCELIUM} | ${assets.mycelium}
+    ${CONFIG.MUSHROOM.JACK_O_LANTERN.type} | ${CONFIG.GROWTH_STAGE.FRUITING} | ${assets.jackOLanternFruiting}
+    ${CONFIG.MUSHROOM.JACK_O_LANTERN.type} | ${CONFIG.GROWTH_STAGE.MATURE}   | ${assets.jackOLanternMature}
+    ${CONFIG.MUSHROOM.BIRDS_NEST.type}     | ${CONFIG.GROWTH_STAGE.MYCELIUM} | ${assets.mycelium}
+    ${CONFIG.MUSHROOM.BIRDS_NEST.type}     | ${CONFIG.GROWTH_STAGE.FRUITING} | ${assets.birdsNestFruiting}
+    ${CONFIG.MUSHROOM.BIRDS_NEST.type}     | ${CONFIG.GROWTH_STAGE.MATURE}   | ${assets.birdsNestMature}
+  `(
+    '$type, $growthStage의 이미지 url는 $expected',
+    ({ type, growthStage, expected }) => {
+      // When
+      const imageUrl = getImageUrl({ type, growthStage, expected });
+
+      // Then
+      expect(imageUrl).toBe(expected);
+    },
+  );
+});
+
+describe('getGrowthStageKo', () => {
+  // Given
+  it.each`
+    growthStage                     | expected
+    ${CONFIG.GROWTH_STAGE.MYCELIUM} | ${'균사'}
+    ${CONFIG.GROWTH_STAGE.FRUITING} | ${'자실체'}
+    ${CONFIG.GROWTH_STAGE.MATURE}   | ${'성숙'}
+  `('$growthStage의 한국어 표현은 $expected', ({ growthStage, expected }) => {
+    // When
+    const ko = getGrowthStageKo({ growthStage });
+
+    // Then
+    expect(ko).toBe(expected);
   });
 });
 

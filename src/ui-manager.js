@@ -6,7 +6,7 @@ import assets from './assets';
 const UIManager = createUIManager();
 export default UIManager;
 
-function createUIManager() {
+export function createUIManager() {
   const setImages = () => {
     const imageMap = {
       '.sun': assets.sun,
