@@ -1,6 +1,6 @@
 # mushroom-in-my-yard
 
-이벤트 기반 아키텍처와 함수형 프로그래밍, HTML/CSS/Vanilla JavaScript 학습을 위한 간단한 버섯 수집 미니 게임입니다.
+이벤트 기반 아키텍처와 함수형 프로그래밍, Vanilla JavaScript 학습을 위한 간단한 버섯 수집 미니 게임입니다.
 
 ![데모 영상](/demo.gif)
 
