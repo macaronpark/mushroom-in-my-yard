@@ -66,7 +66,7 @@ export function render() {
     const prevHTML = fieldEl.innerHTML;
     const newHTML = mushroom ? createMushroomHTML({ mushroom }) : '';
 
-    if (prevHTML.trim() === newHTML.trim()) return;
+    if (prevHTML === newHTML) return;
 
     fieldEl.innerHTML = newHTML;
   });
