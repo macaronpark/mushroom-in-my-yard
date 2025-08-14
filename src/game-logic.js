@@ -8,7 +8,7 @@ export default GameLogic;
 
 function createGameLogic() {
   const setGameLoop = () => {
-    setInterval(() => checkMushroomGrowth(), 1000);
+    setInterval(() => checkMushroomGrowth(), 300);
   };
 
   const bindEvents = () => {

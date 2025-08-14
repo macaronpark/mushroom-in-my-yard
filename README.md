@@ -1,35 +1,51 @@
 # mushroom-in-my-yard
 
-이벤트 기반 아키텍처와 함수형 프로그래밍, 그리고 HTML/CSS/JavaScript 학습을 위한 간단한 버섯 수집 미니 게임입니다.
+이벤트 기반 아키텍처와 함수형 프로그래밍, Vanilla JavaScript 학습을 위한 간단한 버섯 수집 미니 게임입니다.
+
+![데모 영상](/demo.gif)
 
 > [!NOTE]
 > 이 프로젝트는 AI 페어 프로그래밍을 통해 개발되었으며, 각 세션 기록은 [/dev-log](/dev-log/README.md)에 기록합니다.
 
+- [mushroom-in-my-yard](#mushroom-in-my-yard)
+  - [주요 기능](#주요-기능)
+  - [시작하기](#시작하기)
+  - [기술 스택](#기술-스택)
+  - [파일 구조](#파일-구조)
+  - [아키텍처](#아키텍처)
+
+<br>
+
 ## 주요 기능
 
-- **버섯 심기**: 비어있는 밭에 새로운 버섯을 심습니다.
+- **버섯 심기**: 비어있는 밭에 랜덤한 새로운 버섯을 심습니다.
 - **버섯 성장**: 시간이 흐름에 따라 버섯이 3단계(균사 → 자실체 → 성숙)로 성장합니다.
-- **버섯 수확**: 완전히 성장한 버섯을 수확하여 도감에 등록합니다. `🚧 개발 중`
+- **버섯 수확**: 완전히 성장한 버섯을 수확합니다.
 - **버섯 도감**: 수확한 버섯의 정보를 확인하고 수집 현황을 볼 수 있습니다. `🚧 개발 중`
 - **데이터 저장**: 게임 진행 상황이 로컬 스토리지에 자동으로 저장됩니다. `🚧 개발 중`
+
+<br>
 
 ## 시작하기
 
 ```bash
-git clone https://github.com/your-username/mushroom-in-my-yard.git
+git clone git@github.com:macaronpark/mushroom-in-my-yard.git
+
 cd mushroom-in-my-yard
 
 npm install
-
 npm run dev
 ```
+
+<br>
 
 ## 기술 스택
 
 - Core: `HTML5`, `CSS3`, `Vanilla JavaScript`
 - Build: `Vite`
 - Storage: `LocalStorage`
-- Paradigm & Architecture: 함수형 프로그래밍, 이벤트 기반 아키텍처
+
+<br>
 
 ## 파일 구조
 
@@ -37,17 +53,12 @@ npm run dev
   - `📂 .github` - Github Actions workflows
   - `📂 dev-log` - AI 페어 프로그래밍 세션 기록
   - `📂 src`
-    - `📄 config.js`
-    - `📄 event-bus.js`
-    - `📄 game-logic.js`
-    - `📄 game-state.js`
-    - `📄 logger.js`
     - `📄 main.js` - 진입점
-    - `📄 mushroom.js`
-    - `📄 style.css`
-    - `📄 ui-manager.js`
+    - ...
   - `📄 GEMINI.md` - AI 장기 기억을 위한 맥락 기록
   - `📄 index.html`
+
+<br>
 
 ## 아키텍처
 

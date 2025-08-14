@@ -70,8 +70,8 @@ const CONFIG = {
       `,
       rarity: 10,
       growthTime: {
-        myceliumToFruiting: 6000,
-        fruitingToMature: 12000,
+        myceliumToFruiting: 3000,
+        fruitingToMature: 6000,
       },
     },
     JACK_O_LANTERN: {
@@ -106,8 +106,8 @@ const CONFIG = {
       `,
       rarity: 5,
       growthTime: {
-        myceliumToFruiting: 6000,
-        fruitingToMature: 12000,
+        myceliumToFruiting: 10000,
+        fruitingToMature: 16000,
       },
     },
   },
