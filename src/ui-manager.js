@@ -89,20 +89,20 @@ export function createMushroomHTML({ mushroom }) {
     `;
 }
 
+const MUSHROOM_IMG_URL_MAP = {
+  'red_cap-fruiting': assets.redCapFruiting,
+  'red_cap-mature': assets.redCapMature,
+  'jack_o_lantern-fruiting': assets.jackOLanternFruiting,
+  'jack_o_lantern-mature': assets.jackOLanternMature,
+  'birds_nest-fruiting': assets.birdsNestFruiting,
+  'birds_nest-mature': assets.birdsNestMature,
+};
+
 export function getImageUrl({ type, growthStage }) {
   if (growthStage === CONFIG.GROWTH_STAGE.MYCELIUM) return assets.mycelium;
 
   const key = `${type}-${growthStage}`.toLowerCase();
-  const map = {
-    'red_cap-fruiting': assets.redCapFruiting,
-    'red_cap-mature': assets.redCapMature,
-    'jack_o_lantern-fruiting': assets.jackOLanternFruiting,
-    'jack_o_lantern-mature': assets.jackOLanternMature,
-    'birds_nest-fruiting': assets.birdsNestFruiting,
-    'birds_nest-mature': assets.birdsNestMature,
-  };
-
-  return map[key];
+  return MUSHROOM_IMG_URL_MAP[key];
 }
 
 export function getGrowthStageKo({ growthStage }) {
