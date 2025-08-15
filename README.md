@@ -144,6 +144,10 @@ graph TD
     - 읽기: `GameState.getState()`로 직접 조회
     - 데이터 흐름: `GameLogic → (Event) → GameState → (Event) -> UIManager` 단방향
 
+  - 관련 커밋
+    - [docs: 아키텍처 의도를 명확하게 작성](https://github.com/macaronpark/mushroom-in-my-yard/pull/4/commits/d992be03b380b0b38f1223d222ed1b72f7a9b2bd)
+    - [refactor: 밭-버섯 데이터 구조 최적화, 주요 모듈별 책임 강화](https://github.com/macaronpark/mushroom-in-my-yard/pull/4/commits/aab6844b1f75f5b16b1724e70d0405497c18a865)
+
 - 배운 점
   - 모듈 간 통신 패턴은 설계 단계에서 명확히 정의해야 유지보수 비용을 줄일 수 있음
   - 이벤트 중심 구조는 초기에 가시성이 떨어지지만, 장기적으로는 기능 확장성과 테스트 안정성을 높여준다고 느낌
@@ -174,6 +178,7 @@ graph TD
 - 최종 선택
   - **정규화 구조 + Object literal** 사용
   - 이유: 밭/버섯 ID 기반 즉시 조회 가능, 업데이트 시 참조 범위 최소화, JSON 변환 편의성
+  - 관련 커밋: [refactor: 밭-버섯 데이터 구조 최적화, 주요 모듈별 책임 강화](https://github.com/macaronpark/mushroom-in-my-yard/pull/4/commits/aab6844b1f75f5b16b1724e70d0405497c18a865)
 
 - 배운 점
   - Map은 JSON 직렬화/역직렬화가 번거롭다
@@ -209,6 +214,10 @@ graph TD
     - 밭의 `innerHTML` 문자열 기존 값과 새 값을 비교해서 변경 여부 판단
   - 이유: **성능과 구현 난이도의 균형**이 가장 잘 맞음
     - 완벽한 diff는 아니지만, 노드 100개 이하 규모에서는 충분히 빠르고 단순함
+  - 관련 커밋
+    - [refactor: 선언형 UI 렌더링](https://github.com/macaronpark/mushroom-in-my-yard/pull/7/commits/5ce4e40ae6cd4dc24e7cc02c56857bff9f07c122)
+    - [fix: 개별 밭의 클릭 씹힘 현상이 발생하지 않도록 밭별 렌더링](https://github.com/macaronpark/mushroom-in-my-yard/pull/12/commits/f8fa953b485a4d5b9347adc73bab6b6702235c0a)
+    - [test: 테스트 코드에서 UI를 선언형으로 관리](https://github.com/macaronpark/mushroom-in-my-yard/pull/7/commits/457b645a8820051e7934c989a1d55571e6b12f88)
 
 - 배운 점
   - 선언형 UI는 가독성과 유지보수성을 크게 향상시킨다
@@ -237,11 +246,15 @@ graph TD
 
 - 최종 선택
   - **팩토리 함수 패턴**
-    - 이유
-      - 테스트 시 깨끗한 상태로 **모듈을 재생성**할 수 있음. **병렬 테스트도 안전**
-    - 추가 규칙
-      - 싱글톤이 필요한 경우 `default export`(정문)로 인스턴스 내보내도록 규칙화 함
-      - 테스트를 위한 create 함수는 `named export`(쪽문)로 내보내도록 규칙화 함
+  - 이유
+    - 테스트 시 깨끗한 상태로 **모듈을 재생성**할 수 있음. **병렬 테스트도 안전**
+  - 추가 규칙
+    - 싱글톤이 필요한 경우 `default export`(정문)로 인스턴스 내보내도록 규칙화 함
+    - 테스트를 위한 create 함수는 `named export`(쪽문)로 내보내도록 규칙화 함
+  - 관련 커밋
+    - [refactor: GameState 캡슐화를 위한 팩토리 함수 패턴 적용](https://github.com/macaronpark/mushroom-in-my-yard/pull/8/commits/11e096593bba541cf375c408d50c4ff8d9160ad1)
+    - [test: GameState 공개 API를 사용해 테스트하도록 수정](https://github.com/macaronpark/mushroom-in-my-yard/pull/8/commits/a4f205c5a2398356604ace6efb571c9baa42a1cf)
+
 - 배운 점
   - 테스트와 상태 관리가 중요한 경우, 팩토리 함수 패턴이 단순하면서도 강력
   - 의도치 않은 상태 변경을 방지하고 유지보수성을 높이기 위해 캡슐화 필수
@@ -252,8 +265,8 @@ graph TD
 ### 쿠크다스 테스트는 가라
 
 - 문제
-  - 함수 이름만 변경해도 깨지는 테스트가 발생 함
-  - 같은 기능을 다른 레벨에서 중복 검증하게 됨
+  - 함수 이름만 변경해도 **깨지는 테스트가 발생**
+  - 같은 기능을 다른 레벨에서 **중복 검증**하게 됨
 
 - 원인
   - 모든 코드/함수를 1:1로 테스트하려는 접근
@@ -276,6 +289,7 @@ graph TD
   - **구현 세부사항보다 ‘동작’ 테스트하기**
     - 전: 밭을 클릭하면 `plantNewMushroom()`이 호출되는지 테스트
     - 후: 밭을 클릭하면 버섯 심기 이벤트가 발생하는지 테스트
+  - 관련 커밋: [test: 버섯 라이프 사이클을 구현이 아닌 동작 관점으로 테스트하도록 수정](https://github.com/macaronpark/mushroom-in-my-yard/pull/13/commits/b41807c3de4a5c9b078072e3a9b0bda5eb846443)
 
 - 배운 점
   - 모든 코드/함수에 1:1로 테스트를 만들 필요는 없다
@@ -287,21 +301,17 @@ graph TD
 
 - 문제
   - 파일을 열었을 때 가장 중요한 `GameLogic` 선언이 바로 보이지 않음
-  - 결론(무엇이 공개되는가)보다 세부 구현(`createGameLogic()`)이 먼저 보여서 가독성 저하
+  - 결론(무엇이 공개되는가)보다 세부 구현(`createGameLogic()`)이 먼저 보여서 **가독성 저하**
 
 - 원인
   - `createGameLogic`을 화살표 함수(함수 표현식)로 작성해 상단 배치/호이스팅이 불가
 
 - 고민한 지점/대안
   - 함수 선언식으로 전환해 호이스팅 활용해볼까?
-    - JS 함수형 프로그래밍 기조 프로젝트들에서 arrow function을 많이 사용하던데 function 키워드를 사용해도 될까?
+  - JS 함수형 프로그래밍 기조 프로젝트들에서 arrow function을 많이 사용하던데 function 키워드를 사용해도 될까?
 
 - 최종 선택
   - `function` 키워드 사용
-    - 이유
-      - 가독성: 파일 상단에서 GameLogic 바로 확인 가능
-      - 호이스팅: 선언 이전 참조 가능
-      - 디버깅: 스택 추적 용이
 
     ```javascript
     const GameLogic = createGameLogic();
@@ -310,8 +320,14 @@ graph TD
     function createGameLogic() { ... };
     ```
 
+  - 이유
+    - 가독성: 파일 상단에서 GameLogic 바로 확인 가능
+    - 호이스팅: 선언 이전 참조 가능
+    - 디버깅: 스택 추적 용이
+  - 관련 커밋: [refactor: GameLogic 함수를 분리해 공개 API 명시, 테스트 용이성 향상](https://github.com/macaronpark/mushroom-in-my-yard/pull/9/commits/19a84fbf30f923bad6def0a604d62ff0c55f41c6)
+
 - 배운 점
-  - FP의 본질은 “무엇을/어떻게 계산하느냐(순수성, 불변성)”이지 `function`/`=>` 문체가 아님
+  - FP의 본질은 **무엇을/어떻게 계산하느냐**(순수성, 불변성)이지 **`function`/`=>` 문체가 아님**
   - 선언 방식은 **가독성·디버깅·초기화 순서**를 위한 도구
     - 콜백/작은 클로저: 화살표 함수(간결, this 바인딩 없음)
     - 공개 API/팩토리/핵심 로직: 함수 선언식(호이스팅, 명명, 스택 추적 용이)
@@ -346,6 +362,7 @@ graph TD
     - 0.3초마다 모든 버섯을 검사하지 않아도 됨
     - 현재 기능 요구사항은 개별 버섯 성장만 관리하면 충분
     - 구현 복잡도를 최소화해 빠르게 안정화
+  - 관련 커밋: [refactor: 효율적인 버섯 성장 체크를 위해 폴링에서 스케줄링 방식으로 변경](https://github.com/macaronpark/mushroom-in-my-yard/pull/13/commits/30ec5a3fe011a88a4b7deec20ea726d9c9cf725f)
 
 - 배운 점
   - 폴링이 유용한 경우
